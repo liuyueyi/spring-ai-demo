@@ -11,5 +11,5 @@
 
 ## 教程目录
 
-[01.创建一个SpringAI-Demo工程.md](docs/01.创建一个SpringAI-Demo工程.md)
-
+- [x] [01.创建一个SpringAI-Demo工程.md](docs/01.创建一个SpringAI-Demo工程.md)
+- [x] [02.提示词的使用.md](docs/02.提示词设置.md)

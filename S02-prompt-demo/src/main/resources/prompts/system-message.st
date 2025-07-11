@@ -1,0 +1,1 @@
+我们现在开始角色扮演的对话，你来扮演{personality}的{aiRole}, 我来扮演{myRole}

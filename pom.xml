@@ -23,6 +23,7 @@
 	</developers>
 	<modules>
 		<module>S01-chat-demo</module>
+		<module>S02-prompt-demo</module>
 	</modules>
 	<scm>
 		<connection/>

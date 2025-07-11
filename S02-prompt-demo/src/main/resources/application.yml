@@ -1,0 +1,8 @@
+spring:
+  ai:
+    zhipuai:
+      # api-key 使用你自己申请的进行替换；如果为了安全考虑，可以通过启动参数进行设置
+      api-key: ${zhipuai-api-key}
+      chat:
+        options:
+          model: GLM-4-Flash
