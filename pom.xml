@@ -25,6 +25,7 @@
 		<module>S01-chat-demo</module>
 		<module>S02-prompt-demo</module>
 		<module>S03-structured-output</module>
+		<module>S04-chat-memory</module>
 	</modules>
 	<scm>
 		<connection/>
