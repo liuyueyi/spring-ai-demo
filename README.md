@@ -15,11 +15,14 @@
 - [x] [02.提示词的使用.md](docs/02.提示词设置.md)
 - [x] [03.结构化返回](docs/03.结构化返回.md)
 - [x] [04.聊天上下文实现多轮对话](docs/04.聊天上下文.md)
-- [ ] [05.Function Tool工具调用](docs/05.工具调用.md)
-- [ ] [06.MCP模型上下文](docs/06.MCP模型上下文.md)]
-- [ ] [07.检索增强生成RAG](docs/07.检索增强生成RAG.md)
-- [ ] [08.ChatClient使用说明](docs/08.ChatClient使用说明.md)]
-- [ ] [09.Advisor实现SpringAI交互增强](docs/09.Advisor实现SpringAI交互增强.md)]
-- [ ] [10.图像模型](docs/10.图像模型.md)
-- [ ] [11.音频模型](docs/11.音频模型.md)
-- [ ] [12.多模态大语言模型](docs/12.多模态大语言模型.md)
+- [x] [05.自定义大模型接入](docs/05.自定义大模型接入.md)
+- [ ] [06.Function Tool工具调用](docs/06.工具调用.md)
+- [ ] [07.MCP模型上下文](docs/07.MCP模型上下文.md)]
+- [ ] [08.检索增强生成RAG](docs/08.检索增强生成RAG.md)
+- [ ] [09.ChatClient使用说明](docs/09.ChatClient使用说明.md)]
+- [ ] [10.Advisor实现SpringAI交互增强](docs/10.Advisor实现SpringAI交互增强.md)]
+- [ ] [11.图像模型](docs/11.图像模型.md)
+- [ ] [12.音频模型](docs/12.音频模型.md)
+- [ ] [13.多模态大语言模型](docs/13.多模态大语言模型.md)
+
+
