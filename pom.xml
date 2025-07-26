@@ -27,7 +27,8 @@
 		<module>S03-structured-output</module>
 		<module>S04-chat-memory</module>
 		<module>S05-self-model</module>
-	</modules>
+        <module>S06-function-tool</module>
+    </modules>
 	<scm>
 		<connection/>
 		<developerConnection/>
