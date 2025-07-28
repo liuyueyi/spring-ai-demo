@@ -28,6 +28,7 @@
 		<module>S04-chat-memory</module>
 		<module>S05-self-model</module>
         <module>S06-function-tool</module>
+        <module>s07-mcp-server</module>
     </modules>
 	<scm>
 		<connection/>

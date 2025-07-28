@@ -1,0 +1,21 @@
+spring:
+  ai:
+    mcp:
+      server:
+        name: date-server
+        version: 1.0.0
+        type: SYNC
+        instructions: "提供获取不同时区的当前时间，并按照北京时间进行展示"
+        sse-message-endpoint: /mcp/messages
+        sse-endpoint: /sse
+        capabilities:
+          tool: true # 是否支持工具
+          resource: true # 是否支持资源
+          prompt: true # 是否支持提示词
+          completion: true # 是否支持补全
+
+# 修改日志级别
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug
+    io.modelcontextprotocol.server.transport.WebMvcSseServerTransportProvider: debug

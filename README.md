@@ -16,7 +16,8 @@
 - [x] [03.结构化返回](docs/03.结构化返回.md)
 - [x] [04.聊天上下文实现多轮对话](docs/04.聊天上下文.md)
 - [x] [05.自定义大模型接入](docs/05.自定义大模型接入.md)
-- [ ] [06.Function Tool工具调用](docs/06.工具调用.md)
+- [x] [06.Function Tool工具调用](docs/06.工具调用.md)
+- [x] [07.实现一个简单的McpServer.md](docs/07.实现一个简单的McpServer.md)
 - [ ] [07.MCP模型上下文](docs/07.MCP模型上下文.md)]
 - [ ] [08.检索增强生成RAG](docs/08.检索增强生成RAG.md)
 - [ ] [09.ChatClient使用说明](docs/09.ChatClient使用说明.md)]
