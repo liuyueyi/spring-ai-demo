@@ -10,8 +10,8 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
  */
 @ServletComponentScan
 @SpringBootApplication
-public class S07Application {
+public class S08Application {
     public static void main(String[] args) {
-        SpringApplication.run(S07Application.class, args);
+        SpringApplication.run(S08Application.class, args);
     }
 }

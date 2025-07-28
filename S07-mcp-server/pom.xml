@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>com.git.hui.offer</groupId>
-    <artifactId>s07-mcp-server</artifactId>
+    <artifactId>S07-mcp-server</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

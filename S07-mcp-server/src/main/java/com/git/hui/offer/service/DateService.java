@@ -26,12 +26,4 @@ public class DateService {
         System.out.println("传入的时区是：" + area + "-" + ans);
         return ans;
     }
-
-
-    public static void main(String[] args) {
-        ZoneId zoneId = ZoneId.of("Europe/London");
-        DateService dateService = new DateService();
-        String ans = dateService.getTimeByZoneId(zoneId);
-        System.out.println(ans);
-    }
 }
