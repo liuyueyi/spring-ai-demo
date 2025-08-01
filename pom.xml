@@ -30,6 +30,7 @@
         <module>S06-function-tool</module>
         <module>S07-mcp-server</module>
         <module>S08-mcp-server-basic-auth</module>
+        <module>S09-chat-client</module>
     </modules>
 	<scm>
 		<connection/>
