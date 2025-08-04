@@ -22,8 +22,6 @@
 - [x] [09.ChatClient使用说明](docs/09.ChatClient使用说明.md)]
 - [x] [10.Advisor实现SpringAI交互增强](docs/10.Advisor实现SpringAI交互增强.md)]
 - [x] [11.图像模型](docs/11.图像模型.md)
+- [x] [12.多模态实现食材图片卡路里识别示例](docs/12.多模态实现食材图片卡路里识别示例.md)
 - [ ] [12.音频模型](docs/12.音频模型.md)
-- [ ] [13.多模态大语言模型](docs/13.多模态大语言模型.md)
 - [ ] [14.检索增强生成RAG](docs/08.检索增强生成RAG.md)
-
-

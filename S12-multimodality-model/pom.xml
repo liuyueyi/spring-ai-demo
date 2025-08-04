@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>S11-image-model</artifactId>
+    <artifactId>S12-multimodality-model</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -26,5 +26,11 @@
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-model-zhipuai</artifactId>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
+            <version>5.8.38</version>
+        </dependency>
     </dependencies>
+
 </project>

@@ -13,7 +13,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>spring-ai-demo</name>
-	<description>Spring AI , getting started example, using Open AI</description>
+	<description>Spring AI , getting started example, using ZhiPu AI</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -33,7 +33,8 @@
         <module>S09-chat-client</module>
         <module>S10-cost-advise</module>
 		<module>S11-image-model</module>
-	</modules>
+        <module>S12-multimodality-model</module>
+    </modules>
 	<scm>
 		<connection/>
 		<developerConnection/>
