@@ -31,6 +31,7 @@
         <module>S07-mcp-server</module>
         <module>S08-mcp-server-basic-auth</module>
         <module>S09-chat-client</module>
+        <module>S10-cost-advise</module>
     </modules>
 	<scm>
 		<connection/>
