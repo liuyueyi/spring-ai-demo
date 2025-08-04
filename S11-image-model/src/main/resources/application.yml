@@ -1,0 +1,16 @@
+spring:
+  ai:
+    zhipuai:
+      # api-key 使用你自己申请的进行替换；如果为了安全考虑，可以通过启动参数进行设置
+      api-key: ${zhipuai-api-key}
+      image: # 图像模型
+        options:
+          model: CogView-3-Flash
+      chat: # 聊天模型
+        options:
+          model: GLM-4-Flash
+
+# 修改日志级别
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug

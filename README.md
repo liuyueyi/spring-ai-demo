@@ -20,8 +20,8 @@
 - [x] [07.实现一个简单的McpServer](docs/07.实现一个简单的McpServer.md)
 - [x] [08.MCP Server简单鉴权的实现](docs/08.MCP%20Server简单鉴权的实现.md)]
 - [x] [09.ChatClient使用说明](docs/09.ChatClient使用说明.md)]
-- [ ] [10.Advisor实现SpringAI交互增强](docs/10.Advisor实现SpringAI交互增强.md)]
-- [ ] [11.图像模型](docs/11.图像模型.md)
+- [x] [10.Advisor实现SpringAI交互增强](docs/10.Advisor实现SpringAI交互增强.md)]
+- [x] [11.图像模型](docs/11.图像模型.md)
 - [ ] [12.音频模型](docs/12.音频模型.md)
 - [ ] [13.多模态大语言模型](docs/13.多模态大语言模型.md)
 - [ ] [14.检索增强生成RAG](docs/08.检索增强生成RAG.md)

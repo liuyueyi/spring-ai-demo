@@ -32,7 +32,8 @@
         <module>S08-mcp-server-basic-auth</module>
         <module>S09-chat-client</module>
         <module>S10-cost-advise</module>
-    </modules>
+		<module>S11-image-model</module>
+	</modules>
 	<scm>
 		<connection/>
 		<developerConnection/>
