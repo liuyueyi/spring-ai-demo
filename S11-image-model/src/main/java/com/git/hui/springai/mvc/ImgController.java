@@ -1,6 +1,5 @@
 package com.git.hui.springai.mvc;
 
-import cn.hutool.http.HttpUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.ai.image.Image;
 import org.springframework.ai.image.ImageModel;
