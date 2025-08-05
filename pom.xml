@@ -34,7 +34,8 @@
         <module>S10-cost-advise</module>
 		<module>S11-image-model</module>
         <module>S12-multimodality-model</module>
-    </modules>
+		<module>S13-mcp-client-chat</module>
+	</modules>
 	<scm>
 		<connection/>
 		<developerConnection/>

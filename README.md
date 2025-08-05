@@ -5,7 +5,7 @@
 ## 技术栈
 
 - SpringBoot 3.5.3
-- SpringAI 1.0.0
+- SpringAI 1.0.1
 - Java17
 - Maven
 
@@ -27,6 +27,7 @@
 - [x] [10.Advisor实现SpringAI交互增强](docs/10.Advisor实现SpringAI交互增强.md)]
 - [x] [11.图像模型-生成图片](docs/11.图像模型.md)
 - [x] [12.多模态实现食材图片卡路里识别示例](docs/12.多模态实现食材图片卡路里识别示例.md)
+- [x] [13.支持MCP Client的AI对话实现](docs/13.支持MCP%20Client的AI对话实现.md)
 - [ ] [13.音频模型](docs/12.音频模型.md)
 - [ ] [14.检索增强生成RAG](docs/08.检索增强生成RAG.md)
 
@@ -39,3 +40,5 @@
 
 以搭建完整可用的SpringAI应用为目的，演示SpringAI的业务边界和表现，对应项目工程以 `Xxx-` 开头
 
+
+### 4.源码解读
