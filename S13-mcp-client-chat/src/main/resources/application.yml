@@ -13,6 +13,9 @@ spring:
             global-date-times:
               # 这里使用 S07-mcp-server 创建的mcp服务，用于获取当前时间
               url: http://localhost:8080/sse
+        #  使用本地的mcp server，通过进程通信，我们这里演示的是使用 selenium 来实现网页数据抓取
+        stdio:
+          servers-configuration: classpath:mcp-servers.json
         enabled: true
         name: time-mcp
         version: 1.0.0
