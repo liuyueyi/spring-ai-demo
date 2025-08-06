@@ -33,8 +33,9 @@
 
 ### 2.进阶教程
 
-进阶相关将主要介绍如何更好的使用SpringAI进行大模型应用开发，对应项目工程以 `Txx-` 开头
+进阶相关将主要介绍如何更好的使用SpringAI进行大模型应用开发，对应的实例工程都放在 [advance-projects](./advance-projects) 下
 
+- [x] [01.使用MySql持久化对话历史](docs/A01.使用MySql持久化对话历史.md)
 
 ### 3.应用教程
 

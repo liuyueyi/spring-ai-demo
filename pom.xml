@@ -35,7 +35,8 @@
 		<module>S11-image-model</module>
         <module>S12-multimodality-model</module>
 		<module>S13-mcp-client-chat</module>
-	</modules>
+        <module>advance-projects</module>
+    </modules>
 	<scm>
 		<connection/>
 		<developerConnection/>

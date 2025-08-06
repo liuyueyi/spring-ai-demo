@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    # 本地开发环境，使用h2数据库，减少外部依赖项
+    url: jdbc:h2:file:${user.dir}/advance-projects/A01-memory-jdbc/datas/test-db;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+#    url: jdbc:mysql://localhost:3306/ai-oc-my?useUnicode=true&allowPublicKeyRetrieval=true&autoReconnect=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+#    username: root
+#    password:
+  h2:
+    console:
+      enabled: true
+  ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+            schema: classpath:schema-h2.sql
+    zhipuai:
+      # api-key 使用你自己申请的进行替换；如果为了安全考虑，可以通过启动参数进行设置
+      api-key: ${zhipuai-api-key}
+      chat: # 聊天模型
+        options:
+          model: GLM-4-Flash
+
+
+
+# 修改日志级别
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug

@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/ai-oc-my?useUnicode=true&allowPublicKeyRetrieval=true&autoReconnect=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password:
+  ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            # 自动创建表，表对应的schema在 spring-ai-starter-model-chat-memory-repository-jdbc 包下的 schema-mysql.sql 文件中
+            initialize-schema: always
+    zhipuai:
+      # api-key 使用你自己申请的进行替换；如果为了安全考虑，可以通过启动参数进行设置
+      api-key: ${zhipuai-api-key}
+      chat: # 聊天模型
+        options:
+          model: GLM-4-Flash
+
+
+# 修改日志级别
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug
