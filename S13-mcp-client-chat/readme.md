@@ -1,4 +1,6 @@
-# S13-mcp-client-chat
+## S13-mcp-client-chat
+
+author: [一灰灰](https://www.hhui.top/)
 
 对应的博文为： [13.支持MCP Client的AI对话实现.md](../docs/13.支持MCP%20Client的AI对话实现.md)
 
