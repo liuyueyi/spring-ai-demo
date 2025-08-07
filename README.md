@@ -36,6 +36,8 @@
 进阶相关将主要介绍如何更好的使用SpringAI进行大模型应用开发，对应的实例工程都放在 [advance-projects](./advance-projects) 下
 
 - [x] [01.使用MySql持久化对话历史](docs/A01.使用MySql持久化对话历史.md)
+- [x] [02.使用H2持久化对话历史](docs/A02.使用H2持久化对话历史.md)]
+- [x] [03.使用Redis持久化对话历史](docs/A03.使用Redis持久化对话历史.md)]
 
 ### 3.应用教程
 

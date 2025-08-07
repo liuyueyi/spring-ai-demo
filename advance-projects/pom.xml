@@ -15,6 +15,7 @@
     <modules>
         <module>A02-memory-jdbc-h2</module>
         <module>A01-memory-jdbc-mysql</module>
+        <module>A03-memory-redis</module>
     </modules>
 
     <properties>
