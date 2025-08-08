@@ -17,12 +17,14 @@
         <module>A01-memory-jdbc-mysql</module>
         <module>A03-memory-redis</module>
         <module>A04-memory-agent-langgraph</module>
+        <module>A05-agent-langgraph-simple</module>
     </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <langgraph4j.version>1.6.0-rc4</langgraph4j.version>
     </properties>
 
 </project>
