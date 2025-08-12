@@ -36,6 +36,7 @@
         <module>S12-multimodality-model</module>
 		<module>S13-mcp-client-chat</module>
         <module>advance-projects</module>
+        <module>app-projects</module>
     </modules>
 	<scm>
 		<connection/>

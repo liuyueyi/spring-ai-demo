@@ -14,9 +14,9 @@ import java.util.List;
  * @author YiHui
  * @date 2025/8/8
  */
-public class TimeTools {
+public class TimeWeatherTools {
     @Tool(description = "传入时区，返回对应时区的当前时间给用户")
-    public String getTimeByZoneId(@ToolParam(description = "需要查询时间的时区") ZoneId area) {
+    public String getTimeByZoneId(@ToolParam(description = "需要查询时间的时区，如Asia/Shanghai, Europe/Paris") ZoneId area) {
         // 根据系统当前时间，获取指定时区的时间
         ZonedDateTime time = ZonedDateTime.now(area);
 

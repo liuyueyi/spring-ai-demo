@@ -2,7 +2,8 @@ package com.git.hui.springai.advance.mvc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.git.hui.springai.advance.times.TimeTools;
+import com.git.hui.springai.advance.agents.WeatherRecommendAgent;
+import com.git.hui.springai.advance.times.TimeWeatherTools;
 import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.NodeOutput;
@@ -26,16 +27,20 @@ public class ChatController {
 
     private final ChatClient chatClient;
 
+    private final WeatherRecommendAgent weatherAgent;
+
     public ChatController(ChatModel chatModel) throws GraphStateException {
         workflow = AgentExecutor.builder()
                 .chatModel(chatModel)
-                .toolsFromObject(new TimeTools())
+                .toolsFromObject(new TimeWeatherTools())
                 .build()
                 .compile();
 
         chatClient = ChatClient.builder(chatModel)
-                .defaultTools(new TimeTools())
+                .defaultTools(new TimeWeatherTools())
                 .build();
+
+        weatherAgent = new WeatherRecommendAgent(chatClient);
     }
 
     public String toStr(Object obj) {
@@ -76,5 +81,11 @@ public class ChatController {
     @GetMapping("/chat2")
     public Object chat2(String msg) {
         return chatClient.prompt(msg).call().content();
+    }
+
+
+    @GetMapping("/recommend")
+    public Object recommend(String area) {
+        return weatherAgent.recommendByLocation(area);
     }
 }

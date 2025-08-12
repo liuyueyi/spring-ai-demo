@@ -28,8 +28,9 @@
 - [x] [11.图像模型-生成图片](docs/11.图像模型.md)
 - [x] [12.多模态实现食材图片卡路里识别示例](docs/12.多模态实现食材图片卡路里识别示例.md)
 - [x] [13.支持MCP Client的AI对话实现](docs/13.支持MCP%20Client的AI对话实现.md)
-- [ ] [14.音频模型](docs/12.音频模型.md)
-- [ ] [15.检索增强生成RAG](docs/08.检索增强生成RAG.md)
+- [x] [14.创建一个LangGraph4J示例工程](docs/14.创建一个Langgraph4j示例工程.md)
+- [ ] [音频模型](docs/)
+- [ ] [检索增强生成RAG](docs/)
 
 ### 2.进阶教程
 
@@ -38,6 +39,8 @@
 - [x] [01.使用MySql持久化对话历史](docs/A01.使用MySql持久化对话历史.md)
 - [x] [02.使用H2持久化对话历史](docs/A02.使用H2持久化对话历史.md)]
 - [x] [03.使用Redis持久化对话历史](docs/A03.使用Redis持久化对话历史.md)]
+- [x] [04.使用LangGraph4J实现多伦对话](docs/A04.使用Langgraph4j实现多伦对话.md)
+- [x] [05.使用LangGraph4J实现Agent路由选择](docs/A05.使用LangGraph4J实现Agent路由选择.md)
 
 ### 3.应用教程
 
