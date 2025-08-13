@@ -24,7 +24,6 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <langgraph4j.version>1.6.0-rc4</langgraph4j.version>
     </properties>
 
 </project>
