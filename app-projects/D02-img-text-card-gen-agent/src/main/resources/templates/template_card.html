@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>儿童学习卡片轮播</title>
+    <style>
+        body {
+            font-family: "Comic Sans MS", "Microsoft YaHei", sans-serif;
+            background-color: #ffeef5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .carousel {
+            width: 400px;
+            background-color: #fff;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            border: 4px dashed #ff99cc;
+        }
+        .cards {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        .card {
+            min-width: 400px;
+            background-color: #fff8f0;
+            border-radius: 30px 30px 0 0;
+            overflow: hidden;
+        }
+        .card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-bottom: 4px solid #ffccdd;
+        }
+        .card-content {
+            padding: 20px;
+            text-align: center;
+        }
+        .ch-word {
+            font-size: 32px;
+            color: #ff6699;
+            font-weight: bold;
+            text-shadow: 1px 1px #fff0f5;
+        }
+        .ch-desc {
+            font-size: 20px;
+            color: #666;
+            margin: 8px 0 15px 0;
+        }
+        .en-word {
+            font-size: 26px;
+            color: #3399ff;
+            font-weight: bold;
+            text-shadow: 1px 1px #e6f3ff;
+        }
+        .en-desc {
+            font-size: 18px;
+            color: #555;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: #fff4d1;
+            border-top: 3px solid #ffcc99;
+        }
+        .arrow {
+            background-color: #ffb6c1;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.2s;
+        }
+        .arrow:hover {
+            background-color: #ff8aa5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="carousel">
+    <div class="cards" id="cardContainer">
+        <div class="card" th:each="item, index : ${cards}">
+            <img th:src="${item.img}" alt="向日葵">
+            <div class="card-content">
+                <div class="ch-word" th:text="${item.info.zh}">向日葵</div>
+                <div class="ch-desc" th:text="${item.info.zhDesc}">一种总是面向太阳的花朵</div>
+                <div class="en-word" th:text="${item.info.en}">Sunflower</div>
+                <div class="en-desc" th:text="${item.info.enDesc}">A flower that always faces the sun</div>
+            </div>
+        </div>
+    </div>
+    <div class="controls">
+        <button class="arrow" onclick="prevCard()">&#9664; 上一个</button>
+        <button class="arrow" onclick="nextCard()">下一个 &#9654;</button>
+    </div>
+</div>
+
+<script>
+    let currentIndex = 0;
+    const cardContainer = document.getElementById('cardContainer');
+    const totalCards = document.querySelectorAll('.card').length;
+
+    function updateCarousel() {
+        cardContainer.style.transform = `translateX(-${currentIndex * 400}px)`;
+    }
+
+    function prevCard() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateCarousel();
+        }
+    }
+
+    function nextCard() {
+        if (currentIndex < totalCards - 1) {
+            currentIndex++;
+            updateCarousel();
+        }
+    }
+</script>
+
+</body>
+</html>
