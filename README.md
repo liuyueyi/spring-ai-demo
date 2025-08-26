@@ -29,6 +29,7 @@
 - [x] [12.多模态实现食材图片卡路里识别示例](docs/12.多模态实现食材图片卡路里识别示例.md)
 - [x] [13.支持MCP Client的AI对话实现](docs/13.支持MCP%20Client的AI对话实现.md)
 - [x] [14.创建一个LangGraph4J示例工程](docs/14.创建一个Langgraph4j示例工程.md)
+- [x] [15.接入OpenAI接口风格大模型](docs/15.接入OpenAI接口风格的大模型.md)
 - [ ] [音频模型](docs/)
 - [ ] [检索增强生成RAG](docs/)
 

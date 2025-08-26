@@ -37,6 +37,7 @@
 		<module>S13-mcp-client-chat</module>
         <module>advance-projects</module>
         <module>app-projects</module>
+        <module>S15-openai-style-model</module>
     </modules>
 	<scm>
 		<connection/>
