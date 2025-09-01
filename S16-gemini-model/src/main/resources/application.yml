@@ -1,0 +1,19 @@
+spring:
+  ai:
+    vertex:
+      ai:
+        gemini:
+          project-id: 275629563148
+          transport: REST
+          chat:
+            options:
+              model: gemini-2.5-flash
+          location: TAIWAN
+    openai:
+      api-key: ${open-ai.key}
+
+
+# 修改日志级别
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug

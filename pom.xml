@@ -38,6 +38,7 @@
         <module>advance-projects</module>
         <module>app-projects</module>
         <module>S15-openai-style-model</module>
+        <module>S16-gemini-model</module>
     </modules>
 	<scm>
 		<connection/>

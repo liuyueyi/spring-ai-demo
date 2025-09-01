@@ -8,7 +8,7 @@ spring:
           model: CogView-3-Flash
       chat: # 聊天模型
         options:
-          model: GLM-4-Flash
+          model: GLM-4.5-Flash
 
 # 修改日志级别
 logging:
