@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>com.git.hui.ai.app</groupId>
-    <artifactId>S16-gemini-model</artifactId>
+    <artifactId>S16-stream-call</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -25,23 +25,8 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-model-vertex-ai-gemini</artifactId>
+            <artifactId>spring-ai-starter-model-zhipuai</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-model-openai</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler-proxy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor.netty</groupId>
-            <artifactId>reactor-netty-http</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>
