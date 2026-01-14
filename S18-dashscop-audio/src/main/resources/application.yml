@@ -1,0 +1,10 @@
+spring:
+  tts:
+    api-key: ${DASH_API_KEY}
+    model: qwen3-tts-flash-2025-11-27
+    url: https://dashscope.aliyuncs.com/api/v1
+
+# 修改日志级别
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug

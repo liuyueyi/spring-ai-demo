@@ -4,19 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.git.hui.springai</groupId>
-        <artifactId>spring-ai-demo</artifactId>
+        <groupId>com.git.hui.springai.app</groupId>
+        <artifactId>app-projects</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.git.hui.springai.app</groupId>
-    <artifactId>app-projects</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>D01-travel-recommend-agent</module>
-        <module>D02-img-text-card-gen-agent</module>
-        <module>D03-text-address-extraction</module>
-    </modules>
+    <groupId>com.git.hui.dachuan.biz</groupId>
+    <artifactId>D03-text-address-extraction</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -24,4 +18,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-zhipuai</artifactId>
+        </dependency>
+    </dependencies>
 </project>
