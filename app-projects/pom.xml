@@ -16,6 +16,7 @@
         <module>D01-travel-recommend-agent</module>
         <module>D02-img-text-card-gen-agent</module>
         <module>D03-text-address-extraction</module>
+        <module>D04-invoice-extraction</module>
     </modules>
 
     <properties>

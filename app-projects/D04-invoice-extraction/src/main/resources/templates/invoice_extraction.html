@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发票信息提取</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .left-panel,  .right-panel {
+            flex: 3;
+            min-width: 0;
+            min-height: 400px;
+            border: 1px dashed #ccc;
+            text-align: center;
+        }
+        .center-panel {
+            flex: 1;
+            text-align: center;
+            min-height: 400px;
+            border: 1px dashed #ccc;
+            padding: 12px;
+        }
+
+        .panel {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .upload-area.highlight {
+            border-color: #007bff;
+            background-color: #f0f8ff;
+        }
+
+        .upload-area p {
+            margin: 0 0 15px 0;
+            color: #666;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .upload-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .checkbox-container {
+            margin: 15px 0;
+            text-align: center;
+            display: block;
+        }
+
+        .checkbox-label-2 {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            user-select: none;
+        }
+
+        .checkbox-input {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        .checkbox-text {
+            vertical-align: middle;
+        }
+
+
+
+        .preview-container {
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .preview-container h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 350px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #eee;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .identify-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .identify-btn:hover {
+            background-color: #218838;
+        }
+
+        .clear-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+        }
+
+        .clear-btn:hover {
+            background-color: #c82333;
+        }
+
+        .result-container {
+            margin-top: 20px;
+        }
+
+        .result-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .result-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 500px;
+            min-height: 300px;
+            overflow-y: auto;
+            background-color: white;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .paste-area {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background-color: #fafafa;
+        }
+
+        .paste-area p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>发票信息提取系统</h1>
+    <div class="top">
+        <h3>选择发票图片</h3>
+        <div class="upload-area" id="uploadArea">
+            <p>点击下方按钮选择图片，或将图片拖拽到此区域</p>
+            <input type="file" id="fileInput" class="file-input" accept="image/*">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">选择图片</button>
+            <div class="paste-area">
+                <p>或者按 Ctrl+V 粘贴剪贴板中的图片</p>
+            </div>
+        </div>
+    </div>
+    <div class="main-layout panel">
+        <!-- 左侧面板：图片选择和预览 -->
+        <div class="left-panel">
+            <h3>图片预览</h3>
+            <div class="preview-container" id="previewContainer">
+                <img id="previewImage" class="preview-image" alt="预览图">
+            </div>
+        </div>
+
+        <!-- 中间面板：操作按钮 -->
+        <div class="center-panel">
+            <div>
+                <h3>操作区域</h3>
+                <div class="controls" id="controls" style="display:none;">
+                    <button class="identify-btn" id="identifyBtn">识别发票信息</button>
+                    <div class="checkbox-container">
+                        <label class="checkbox-label-2">
+                            <input type="checkbox" id="needItemsCheckbox" class="checkbox-input">
+                            <span class="checkbox-text">发票行数提取</span>
+                        </label>
+                    </div>
+                    <button class="clear-btn" id="clearBtn">清除</button>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p>正在识别发票信息，请稍候...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧面板：识别结果 -->
+        <div class="right-panel">
+            <div>
+                <h3>识别结果</h3>
+                <div class="result-container" id="resultContainer">
+                    <div id="resultContent" class="result-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const controls = document.getElementById('controls');
+        const identifyBtn = document.getElementById('identifyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const loading = document.getElementById('loading');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultContent = document.getElementById('resultContent');
+
+        // 文件选择事件
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // 拖拽事件
+        uploadArea.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            uploadArea.classList.add('highlight');
+        });
+
+        uploadArea.addEventListener('dragleave', function (e) {
+            e.preventDefault();
+            uploadArea.classList.remove('highlight');
+        });
+
+        uploadArea.addEventListener('drop', function (e) {
+            e.preventDefault();
+            uploadArea.classList.remove('highlight');
+            if (e.dataTransfer.files.length > 0) {
+                handleFiles(e.dataTransfer.files);
+            }
+        });
+
+        // 粘贴事件
+        document.addEventListener('paste', function (e) {
+            if (e.clipboardData && e.clipboardData.items) {
+                let items = e.clipboardData.items;
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        let blob = items[i].getAsFile();
+                        handleFiles([blob]);
+                        break;
+                    }
+                }
+            }
+        });
+
+        // 清除按钮
+        clearBtn.addEventListener('click', function () {
+            fileInput.value = '';
+            previewContainer.style.display = 'none';
+            controls.style.display = 'none';
+            resultContainer.style.display = 'none';
+            uploadArea.classList.remove('highlight');
+        });
+
+        // 识别按钮
+        identifyBtn.addEventListener('click', identifyInvoice);
+
+        function handleFileSelect(e) {
+            if (e.target.files.length > 0) {
+                handleFiles(e.target.files);
+            }
+        }
+
+        function handleFiles(files) {
+            const file = files[0];
+            if (!file.type.match('image.*')) {
+                alert('请选择图片文件！');
+                return;
+            }
+
+            // 设置fileInput的files属性，以便识别按钮可以访问
+            if (fileInput.files !== files) {
+                // 创建一个新的FileList对象
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImage.src = e.target.result;
+                previewContainer.style.display = 'block';
+                controls.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function identifyInvoice() {
+            if (!fileInput.files[0]) {
+                alert('请先选择一张图片！');
+                return;
+            }
+
+            loading.style.display = 'block';
+            resultContainer.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('msg', '请将发票图片内容进行识别，并返回结构化的发票信息');
+            // 新增参数：needItems
+            const needItemsCheckbox = document.getElementById('needItemsCheckbox');
+            formData.append('needItems', needItemsCheckbox.checked);
+
+
+            try {
+                const response = await fetch('/extractInvoice', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.text();
+
+                // 尝试解析JSON并格式化显示
+                try {
+                    const jsonData = JSON.parse(result);
+                    resultContent.innerHTML = formatInvoiceData(jsonData);
+                } catch (e) {
+                    // 如果不是有效的JSON，则直接显示原始文本
+                    resultContent.textContent = result;
+                }
+
+                resultContainer.style.display = 'block';
+            } catch (error) {
+                console.error('识别失败:', error);
+                resultContent.textContent = '识别失败: ' + error.message;
+                resultContainer.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+    });
+
+    // 格式化发票数据的函数
+    function formatInvoiceData(data) {
+        if (typeof data !== 'object') {
+            return '<p>无法解析的数据格式</p>';
+        }
+
+        let html = '<div class="formatted-result">';
+
+        // 如果是数组，遍历每个项目
+        if (Array.isArray(data)) {
+            html += '<h3>发票列表</h3>';
+            data.forEach((item, index) => {
+                html += `<div class="invoice-item"><h4>发票 ${index + 1}</h4>` + formatSingleInvoice(item) + '</div>';
+            });
+        } else {
+            // 单个发票对象
+            html += formatSingleInvoice(data);
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    function formatSingleInvoice(invoice) {
+        if (typeof invoice !== 'object') return '';
+
+        let html = '<table class="invoice-table" style="width: 100%; border-collapse: collapse; margin: 10px 0;">';
+
+        for (const [key, value] of Object.entries(invoice)) {
+            html += '<tr style="border-bottom: 1px solid #eee;">' +
+                `<td style="padding: 8px; text-align: left; font-weight: bold; width: 30%; background-color: #f8f9fa;">
+` +
+                `${formatKey(key)}</td>
+` +
+                `<td style="padding: 8px; text-align: left; width: 70%;">
+` +
+                `${formatValue(value)}</td></tr>`;
+        }
+
+        html += '</table>';
+        return html;
+    }
+
+    function formatKey(key) {
+        const keyMap = {
+            'invoiceType': '发票类型',
+            'invoiceCode': '发票代码',
+            'invoiceNumber': '发票号码',
+            'invoiceDate': '开票日期',
+            'checkCode': '校验码',
+            'passwordArea': '密码区',
+            'machineNumber': '机器编号',
+            'purchaserName': '购买方名称',
+            'purchaserTaxNumber': '购买方税号',
+            'purchaserAddressPhone': '购买方地址电话',
+            'purchaserBankAccount': '购买方开户行及账号',
+            'sellerName': '销售方名称',
+            'sellerTaxNumber': '销售方税号',
+            'sellerAddressPhone': '销售方地址电话',
+            'sellerBankAccount': '销售方开户行及账号',
+            'totalAmountInWords': '合计金额大写',
+            'totalAmountInFigures': '合计金额小写',
+            'taxTotalAmountInWords': '价税合计大写',
+            'taxTotalAmountInFigures': '价税合计小写',
+            'remark': '备注',
+            'cashier': '收款人',
+            'reviewer': '复核',
+            'checker': '开票人',
+            'goodsList': '货物或应税劳务清单',
+            'amount': '金额',
+            'taxRate': '税率',
+            'taxAmount': '税额'
+        };
+
+        return keyMap[key] || key.charAt(0).toUpperCase() + key.slice(1);
+    }
+
+    function formatValue(value) {
+        if (value === null || value === undefined) {
+            return '<span style="color: #999; font-style: italic;">无数据</span>';
+        }
+
+        if (typeof value === 'object') {
+            if (Array.isArray(value)) {
+                if (value.length === 0) return '无数据';
+
+                let listHtml = '<div style="margin: 5px 0;">';
+                value.forEach((item, index) => {
+                    if (typeof item === 'object') {
+                        listHtml += `<div style="border: 1px solid #eee; margin: 5px 0; padding: 8px; border-radius: 4px;"><strong>项目 ${index + 1}:</strong>`;
+                        for (const [k, v] of Object.entries(item)) {
+                            listHtml += `<div style="margin-left: 10px;"><strong>${formatKey(k)}:</strong> ${formatValue(v)}</div>`;
+                        }
+                        listHtml += '</div>';
+                    } else {
+                        listHtml += `<div>${index + 1}. ${formatValue(item)}</div>`;
+                    }
+                });
+                listHtml += '</div>';
+                return listHtml;
+            } else {
+                // 嵌套对象递归处理
+                let objHtml = '<div style="margin: 5px 0; padding: 8px; border-left: 3px solid #007bff;">';
+                for (const [k, v] of Object.entries(value)) {
+                    objHtml += `<div><strong>${formatKey(k)}:</strong> ${formatValue(v)}</div>`;
+                }
+                objHtml += '</div>';
+                return objHtml;
+            }
+        }
+
+        return String(value);
+    }
+</script>
+</body>
+</html>
