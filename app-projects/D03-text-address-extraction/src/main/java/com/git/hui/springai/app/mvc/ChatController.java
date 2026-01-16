@@ -12,8 +12,10 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Map;
 
@@ -21,7 +23,7 @@ import java.util.Map;
  * @author YiHui
  * @date 2025/7/11
  */
-@RestController
+@Controller
 public class ChatController {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ChatController.class);
 
@@ -42,17 +44,6 @@ public class ChatController {
             - 详细地址：门牌号、小区、楼栋等
             - 行政区域编码：通常是区县一级的编码，6位数字
                     
-            示例输入："礼盒20个吉林省长春市朝阳区开运街领秀朝阳小区11栋2号楼304 田甜 18692093383"
-            示例输出： {
-                "province": "吉林省",
-                "city": "长春市",
-                "area": "朝阳区",
-                "street": "开运街领秀朝阳小区",
-                "detailInfo": "11栋2号楼304",
-                "adCode": "220104",
-                "personName": "田甜",
-                "personPhone": "18692093383"
-            }
             """;
 
     private final ChatModel chatModel;
@@ -78,6 +69,7 @@ public class ChatController {
      * @return
      */
     @GetMapping("/ai/genAddress")
+    @ResponseBody
     public Address generateAddress(String content) {
         BeanOutputConverter<Address> beanOutputConverter = new BeanOutputConverter<>(Address.class);
         String format = beanOutputConverter.getFormat();
@@ -94,6 +86,7 @@ public class ChatController {
 
 
     @GetMapping("/ai/genAddressWithPromptTemplate")
+    @ResponseBody
     public Address generateAddressWithPromptTemplate(String content) {
         ChatClient.CallResponseSpec res = chatClient.prompt(content).call();
         Address address = res.entity(Address.class);
@@ -107,10 +100,17 @@ public class ChatController {
      * @return
      */
     @GetMapping("/ai/genAddressWithCodeTool")
+    @ResponseBody
     public Address generateAddressWithCodeTool(String content) {
         ChatClient.CallResponseSpec res = chatClient.prompt(content).tools(addressAdCodeService).call();
         Address address = res.entity(Address.class);
         return address;
+    }
+
+    // 页面展示方法
+    @GetMapping("/addressPage")
+    public String addressPage(Model model) {
+        return "address_extraction";
     }
 
     record Address(

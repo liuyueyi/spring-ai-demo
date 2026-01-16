@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地址信息提取</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .input-panel, .output-panel {
+            flex: 1;
+            min-width: 0;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .extract-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+
+        .extract-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .clear-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+
+        .clear-btn:hover {
+            background-color: #545b62;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-display {
+            background-color: white;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 15px;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .address-field {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .field-label {
+            font-weight: bold;
+            color: #495057;
+            display: inline-block;
+            width: 100px;
+        }
+
+        .field-value {
+            color: #212529;
+        }
+
+        .example-text {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>自然语言地址信息提取系统</h1>
+        <p>请输入包含地址信息的自然语言文本，系统将自动提取结构化的地址信息。</p>
+        
+        <div class="example-text">
+            <strong>示例输入：</strong>"礼盒20个吉林省长春市朝阳区开运街领秀朝阳小区11栋2号楼304 田甜 18692093383"
+        </div>
+
+        <div class="main-layout">
+            <!-- 左侧面板：输入文本 -->
+            <div class="input-panel">
+                <div class="panel-title">输入自然语言文本</div>
+                <textarea id="inputText" placeholder="请输入包含地址信息的自然语言文本，例如：发货到湖北省武汉市武昌区中南路街中南一路3号凤凰大厦201室张三13800138000" ></textarea>
+            </div>
+
+            <!-- 右侧面板：输出结果 -->
+            <div class="output-panel">
+                <div class="panel-title">提取结果</div>
+                <div id="resultDisplay" class="result-display">结果将在此处显示...</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="extract-btn" id="extractBtn">提取地址信息</button>
+            <button class="clear-btn" id="clearBtn">清空</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>正在提取地址信息，请稍候...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const inputText = document.getElementById('inputText');
+            const resultDisplay = document.getElementById('resultDisplay');
+            const extractBtn = document.getElementById('extractBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const loading = document.getElementById('loading');
+
+            // 提取地址信息按钮
+            extractBtn.addEventListener('click', extractAddress);
+
+            // 清空按钮
+            clearBtn.addEventListener('click', function () {
+                inputText.value = '';
+                resultDisplay.textContent = '结果将在此处显示...';
+            });
+
+            async function extractAddress() {
+                const content = inputText.value.trim();
+                if (!content) {
+                    alert('请输入要提取地址信息的文本！');
+                    return;
+                }
+
+                loading.style.display = 'block';
+                resultDisplay.textContent = '';
+
+                try {
+                    const response = await fetch(`/ai/genAddressWithCodeTool?content=${encodeURIComponent(content)}`, {
+                        method: 'GET',
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    // 格式化结果显示
+                    displayFormattedResult(result);
+                } catch (error) {
+                    console.error('提取失败:', error);
+                    resultDisplay.innerHTML = `<div style="color: red;">提取失败: ${error.message}</div>`;
+                } finally {
+                    loading.style.display = 'none';
+                }
+            }
+
+            function displayFormattedResult(address) {
+                if (!address) {
+                    resultDisplay.textContent = '未能提取到地址信息';
+                    return;
+                }
+
+                let html = '<div class="address-info">';
+
+                if (address.province) {
+                    html += `<div class="address-field"><span class="field-label">省份：</span><span class="field-value">${address.province}</span></div>`;
+                }
+                if (address.city) {
+                    html += `<div class="address-field"><span class="field-label">城市：</span><span class="field-value">${address.city}</span></div>`;
+                }
+                if (address.area) {
+                    html += `<div class="address-field"><span class="field-label">区县：</span><span class="field-value">${address.area}</span></div>`;
+                }
+                if (address.street) {
+                    html += `<div class="address-field"><span class="field-label">街道：</span><span class="field-value">${address.street}</span></div>`;
+                }
+                if (address.adCode) {
+                    html += `<div class="address-field"><span class="field-label">行政编码：</span><span class="field-value">${address.adCode}</span></div>`;
+                }
+                if (address.detailInfo) {
+                    html += `<div class="address-field"><span class="field-label">详细地址：</span><span class="field-value">${address.detailInfo}</span></div>`;
+                }
+                if (address.personName) {
+                    html += `<div class="address-field"><span class="field-label">联系人：</span><span class="field-value">${address.personName}</span></div>`;
+                }
+                if (address.personPhone) {
+                    html += `<div class="address-field"><span class="field-label">联系电话：</span><span class="field-value">${address.personPhone}</span></div>`;
+                }
+
+                html += '</div>';
+
+                if (html === '<div class="address-info"></div>') {
+                    html = '未能从输入文本中提取到有效的地址信息';
+                }
+
+                resultDisplay.innerHTML = html;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -6,7 +6,7 @@ spring:
       chat:
         options:
           model: GLM-4-Flash
-          temperature: 0.2
+          temperature: 0.1
 
 
 # 修改日志级别
