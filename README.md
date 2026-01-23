@@ -6,6 +6,7 @@
 
 - SpringBoot 3.5.3
 - SpringAI ~~1.0.1~~  🚀升级为 -> 1.1.2
+- LangGraph4J
 - Java17
 - Maven
 
@@ -52,6 +53,8 @@
 - [x] [从0到1创建一个基于天气的旅游美食推荐智能体](docs/D01.从0到1创建一个基于天气的旅游美食推荐智能体.md) 
 - [x] [大模型应用开发实战：两百行实现一个自然语言地址提取智能体](https://mp.weixin.qq.com/s/96rHyp_gBUgmA2dhSbzNww)
 - [x] [再见，OCR模板！你好，发票智能体：基于SpringAI与大模型的零配置发票智能提取架构](https://mp.weixin.qq.com/s/SnXdTB6tYqAzG7HgbnTSAQ)
+- [x] [实战 | 零基础搭建知识库问答机器人：基于SpringAI+RAG的完整实现](https://mp.weixin.qq.com/s/NHqLJbos-_nrxNNmhg7IBQ)
+
 
 ### 4.源码解读
 
