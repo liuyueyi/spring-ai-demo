@@ -17,6 +17,7 @@
         <module>D02-img-text-card-gen-agent</module>
         <module>D03-text-address-extraction</module>
         <module>D04-invoice-extraction</module>
+        <module>D05-rag-qa-bot</module>
     </modules>
 
     <properties>

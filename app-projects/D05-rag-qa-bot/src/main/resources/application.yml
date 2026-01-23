@@ -1,0 +1,23 @@
+spring:
+  ai:
+    zhipuai:
+      # api-key 使用你自己申请的进行替换；如果为了安全考虑，可以通过启动参数进行设置
+      api-key: ${zhipuai-api-key}
+      chat: # 聊天模型
+        options:
+          model: GLM-4-Flash
+          temperature: 0.1 # 低温度，保证提取的稳定性
+  thymeleaf:
+    cache: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+# 修改日志级别
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug
+    org.springframework.ai.chat.client: DEBUG
+server:
+  port: 8080

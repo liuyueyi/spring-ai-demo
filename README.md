@@ -50,6 +50,8 @@
 以搭建完整可用的SpringAI应用为目的，演示SpringAI的业务边界和表现，对应项目工都放在 [app-projects](./app-projects) 下
 
 - [x] [从0到1创建一个基于天气的旅游美食推荐智能体](docs/D01.从0到1创建一个基于天气的旅游美食推荐智能体.md) 
+- [x] [大模型应用开发实战：两百行实现一个自然语言地址提取智能体](https://mp.weixin.qq.com/s/96rHyp_gBUgmA2dhSbzNww)
+- [x] [再见，OCR模板！你好，发票智能体：基于SpringAI与大模型的零配置发票智能提取架构](https://mp.weixin.qq.com/s/SnXdTB6tYqAzG7HgbnTSAQ)
 
 ### 4.源码解读
 
