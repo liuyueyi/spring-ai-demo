@@ -2,6 +2,8 @@
 
 基于SpringAI的示例工程，快速体验SpringAI的能力，记录一下个人体验SpringAI进行大模型上层应用开发的学习历程，同时也给希望体验大模型应用开发的java开发者提供一些参考
 
+项目关联主站：[https://ppai.top](https://ppai.top)
+
 ## 技术栈
 
 - SpringBoot 3.5.3
@@ -9,6 +11,12 @@
 - LangGraph4J
 - Java17
 - Maven
+
+v2 对应的目录下，存放的是基于 SpringAI 2.x 的示例工程
+
+- Java21
+- SpringBoot 4.x
+- SpringAI 2.x
 
 ## 教程目录
 
@@ -45,6 +53,8 @@
 - [x] [03.使用Redis持久化对话历史](docs/A03.使用Redis持久化对话历史.md)]
 - [x] [04.使用LangGraph4J实现多伦对话](docs/A04.使用Langgraph4j实现多伦对话.md)
 - [x] [05.使用LangGraph4J实现Agent路由选择](docs/A05.使用LangGraph4J实现Agent路由选择.md)
+- [x] [06.告别传统AI开发！SpringAI Agent + Skills重新定义智能应用](https://mp.weixin.qq.com/s/ujxVleNhjxzUgL-rjfFcVA)
+
 
 ### 3.应用教程
 
@@ -59,3 +69,16 @@
 ### 4.源码解读
 
 以源码的视角，介绍SpringAI的核心实现，对应的项目工程以 `Yxx-` 开头
+
+
+### 5.LLM应用开发入门
+
+- [LLM 应用开发是什么：零基础也可以读懂的科普文(极简版)](https://mp.weixin.qq.com/s/qCn8x2XO2shA8MheYbHq0w)
+- [大模型应用开发系列教程：序-为什么你“会用 LLM”，但做不出复杂应用？](https://mp.weixin.qq.com/s/2GXBNOUq3jlysipftz8TpA)
+- [大模型应用开发系列教程：第一章LLM到底在做什么？](https://mp.weixin.qq.com/s/v-z6EHY300ElOxdGPdzc0w)
+- [大模型应用开发系列教程：第二章 模型不是重点，参数才是你真正的控制面板](https://mp.weixin.qq.com/s/t_BuAW9i0npcaJdua3Am2Q)
+- [大模型应用开发系列教程：第三章 为什么我的Prompt表现很糟？](https://mp.weixin.qq.com/s/vzt0bGwcfnASOiBa0Kc7VQ)
+- [大模型应用开发系列教程：第四章Prompt 的工程化结构设计](https://mp.weixin.qq.com/s/Nk-N34TLJVCTI5F4k5rGaQ)
+- [大模型应用开发系列教程：第五章 从 Prompt 到 Prompt 模板与工程治理](https://mp.weixin.qq.com/s/ZQbztqBq7_PzynG06N4-mg)
+- [大模型应用开发系列教程：第六章 上下文窗口的真实边界](https://mp.weixin.qq.com/s/nnKspRO87xbrn4-LBV3RNA)
+- [大模型应用开发系列教程：第七章：从 “堆上下文” 到 “管理上下文”](https://mp.weixin.qq.com/s/_5D2tF6CPnafj5mlmlwLNw)
