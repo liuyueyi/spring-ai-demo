@@ -1,0 +1,26 @@
+#spring:
+#  ai:
+#    # 引用openai时，要求必须设置api-key；我们实际上从流程编排中获取对应的apiKey
+#    openai:
+#      api-key: ${zhipuai-api-key}
+#      base-url: https://open.bigmodel.cn/api/paas/v4/chat/completions
+#      chat:
+#        options:
+#          model: GLM-4.5-Flash
+spring:
+  thymeleaf:
+    cache: false
+  ai:
+    zhipuai:
+      # api-key 使用你自己申请的进行替换；如果为了安全考虑，可以通过启动参数进行设置
+      api-key: ${zhipuai-api-key}
+      chat: # 聊天模型
+        options:
+          model: GLM-4.7-Flash
+      image: # 图像模型
+        options:
+          model: CogView-3-Flash
+
+    dashboard:
+      enable: false
+      api-key: ${dashboard-api-key}

@@ -26,6 +26,8 @@
 
     <modules>
         <module>T01-agentic-skills-simple-design</module>
+        <module>T02-manual-qa-cli-robot</module>
+        <module>T03-manual-qa-web-robot</module>
     </modules>
 
     <dependencyManagement>
