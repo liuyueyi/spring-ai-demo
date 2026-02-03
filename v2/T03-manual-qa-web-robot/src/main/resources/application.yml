@@ -22,5 +22,5 @@ spring:
           model: CogView-3-Flash
 
     dashboard:
-      enable: false
+      enable: true
       api-key: ${dashboard-api-key}

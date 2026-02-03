@@ -54,7 +54,7 @@ v2 对应的目录下，存放的是基于 SpringAI 2.x 的示例工程
 - [x] [04.使用LangGraph4J实现多伦对话](docs/A04.使用Langgraph4j实现多伦对话.md)
 - [x] [05.使用LangGraph4J实现Agent路由选择](docs/A05.使用LangGraph4J实现Agent路由选择.md)
 - [x] [06.告别传统AI开发！SpringAI Agent + Skills重新定义智能应用](https://mp.weixin.qq.com/s/ujxVleNhjxzUgL-rjfFcVA)
-
+- [x] [07.Spring AI中的多轮对话艺术：让大模型主动提问获取明确需求](https://mp.weixin.qq.com/s/LcvmiIERs6aOIlRAKGGnFg)
 
 ### 3.应用教程
 

@@ -15,8 +15,8 @@ public class ChatViewController {
         return "chat";
     }
 
-    @RequestMapping("v2")
+    @RequestMapping("redpacket")
     public String about() {
-        return "chatv2";
+        return "redpacket";
     }
 }
