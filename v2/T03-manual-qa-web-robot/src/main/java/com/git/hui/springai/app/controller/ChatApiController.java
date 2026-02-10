@@ -177,20 +177,34 @@ public class ChatApiController {
 
     public class WebQuestionHandler implements AskUserQuestionTool.QuestionHandler {
         @Override
+        /**
+         * 处理用户问题列表，向用户发送问题并等待用户回答
+         *
+         * @param questions 用户问题列表
+         * @return 包含问题和对应答案的映射
+         */
         public Map<String, String> handle(List<AskUserQuestionTool.Question> questions) {
+            // 创建用于存储问题和答案的映射
             Map<String, String> answers = new HashMap<>();
+            // 获取当前请求的上下文信息
             ReqContextHolder.ReqInfo req = ReqContextHolder.getReqId();
+            // 获取SSE发射器用于向客户端发送消息
             SseEmitter sseEmitter = req.sse();
 
+            // 遍历所有需要询问用户的问题
             for (AskUserQuestionTool.Question q : questions) {
+                // 向用户发送问题标题和内容
                 sendMsg(sseEmitter, "\n" + q.header() + ": " + q.question());
 
+                // 获取问题的选项列表
                 List<AskUserQuestionTool.Question.Option> options = q.options();
+                // 遍历选项并发送给用户
                 for (int i = 0; i < options.size(); i++) {
                     AskUserQuestionTool.Question.Option opt = options.get(i);
                     sendMsg(sseEmitter, String.format("  %d. %s - %s%n", i + 1, opt.label(), opt.description()));
                 }
 
+                // 根据是否支持多选发送不同的提示信息
                 if (q.multiSelect()) {
                     sendMsg(sseEmitter, "  (Enter numbers separated by commas, or type custom text)");
                 } else {
@@ -199,25 +213,30 @@ public class ChatApiController {
 
                 // 阻塞等待用户输入
                 BlockingQueue<String> queue = chatHistory.get(req.chatId());
+                // 如果队列不存在，则创建新的队列
                 if (queue == null) {
                     queue = new LinkedBlockingQueue<>();
                     chatHistory.put(req.chatId(), queue);
                 }
+                
                 String response = null;
                 try {
-                    // 等待最多5秒，如果超时则返回空字符串
+                    // 等待最多5分钟获取用户响应，超时则返回空字符串
                     response = queue.poll(5, TimeUnit.MINUTES);
                     if (response == null) {
                         response = ""; // 超时情况下的默认响应
                     }
                 } catch (InterruptedException e) {
+                    // 线程被中断时设置中断状态并返回空字符串
                     Thread.currentThread().interrupt();
                     response = "";
                 }
 
+                // 解析用户响应并存入答案映射
                 answers.put(q.question(), parseResponse(response, options));
             }
 
+            // 返回包含所有问题和答案的映射
             return answers;
         }
 
