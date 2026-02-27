@@ -41,6 +41,7 @@
         <module>S16-stream-call</module>
         <module>S17-reasoncontent</module>
         <module>S18-dashscop-audio</module>
+        <module>S19-audio-transaction</module>
     </modules>
 	<scm>
 		<connection/>

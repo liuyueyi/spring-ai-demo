@@ -1,0 +1,22 @@
+spring:
+  thymeleaf:
+    cache: false
+  ai:
+    openai:
+      # api-key 使用你自己申请的进行替换；如果为了安全考虑，可以通过启动参数进行设置
+      api-key: ${silicon-api-key}
+      transcription:
+        api-key: ${silicon-api-key}
+        base-url: https://api.siliconflow.cn/v1
+        options:
+          model: FunAudioLLM/SenseVoiceSmall
+          response-format: text
+      chat: # 聊天模型
+        options:
+          model: deepseek-ai/DeepSeek-R1-0528-Qwen3-8B
+      base-url: https://api.siliconflow.cn
+
+# 修改日志级别
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug
