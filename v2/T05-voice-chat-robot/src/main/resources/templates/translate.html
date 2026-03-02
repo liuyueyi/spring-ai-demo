@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时语音翻译 - 多语言语音翻译工具</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- 自定义配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        accent: '#722ED1',
+                        success: '#52C41A',
+                        warning: '#FAAD14',
+                        danger: '#FF4D4F',
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .recording-indicator {
+                @apply w-3 h-3 rounded-full bg-danger animate-pulse;
+            }
+            .recording-wave {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 60px;
+                margin: 10px 0;
+            }
+            .wave-bar {
+                width: 4px;
+                height: 20px;
+                background: #3B82F6;
+                margin: 0 2px;
+                border-radius: 2px;
+                animation: wave 1.2s ease-in-out infinite;
+            }
+            .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+            .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+            .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+            .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+            @keyframes wave {
+                0%, 100% { height: 10px; }
+                50% { height: 30px; }
+            }
+            .audio-level-meter {
+                width: 100%;
+                height: 8px;
+                background: #e5e7eb;
+                border-radius: 4px;
+                overflow: hidden;
+                margin: 10px 0;
+            }
+            .audio-level-fill {
+                height: 100%;
+                background: linear-gradient(90deg, #10B981, #3B82F6);
+                border-radius: 4px;
+                transition: width 0.1s ease;
+                width: 0%;
+            }
+            .file-drop-area {
+                @apply border-2 border-dashed border-gray-300 rounded-xl p-8 text-center transition-all duration-300 hover:border-primary/50 hover:bg-primary/5;
+            }
+            .file-drop-area-active {
+                @apply border-primary bg-primary/10;
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .pulse-animation {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+            .fade-in {
+                animation: fadeIn 0.3s ease-in;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .toast-enter {
+                animation: toastEnter 0.3s ease-out;
+            }
+            @keyframes toastEnter {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-dark">
+<!-- 顶部导航 -->
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <i class="fa fa-language text-primary text-2xl"></i>
+            <h1 class="text-xl font-bold text-gray-800">实时语音翻译工具</h1>
+        </div>
+        <div class="hidden md:flex items-center space-x-4">
+            <button id="history-btn" class="text-gray-600 hover:text-primary transition-colors">
+                <i class="fa fa-history mr-1"></i> 翻译历史
+            </button>
+        </div>
+        <button class="md:hidden text-xl" id="mobile-menu-btn">
+            <i class="fa fa-bars"></i>
+        </button>
+    </div>
+    <!-- 移动端菜单 -->
+    <div class="md:hidden hidden bg-white w-full shadow-md" id="mobile-menu">
+        <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+            <button id="mobile-history-btn" class="py-2 text-gray-600 hover:text-primary transition-colors text-left">
+                <i class="fa fa-history mr-2"></i> 翻译历史
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- 主内容区 -->
+<main class="container mx-auto px-4 py-8 max-w-5xl">
+    <!-- 语言选择区域 -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="w-full md:w-1/2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">源语言 (语音识别)</label>
+                <div class="relative">
+                    <select id="source-lang" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary appearance-none">
+                        <option value="zh-CN">中文 (普通话)</option>
+                        <option value="en-US">英语 (美国)</option>
+                        <option value="ja-JP">日语</option>
+                        <option value="ko-KR">韩语</option>
+                        <option value="fr-FR">法语</option>
+                        <option value="de-DE">德语</option>
+                        <option value="es-ES">西班牙语</option>
+                        <option value="ru-RU">俄语</option>
+                    </select>
+                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <i class="fa fa-chevron-down text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full md:w-1/2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">目标语言 (翻译结果)</label>
+                <div class="relative">
+                    <select id="target-lang" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary appearance-none">
+                        <option value="en">英语</option>
+                        <option value="zh">中文</option>
+                        <option value="ja">日语</option>
+                        <option value="ko">韩语</option>
+                        <option value="fr">法语</option>
+                        <option value="de">德语</option>
+                        <option value="es">西班牙语</option>
+                        <option value="ru">俄语</option>
+                        <option value="ar">阿拉伯语</option>
+                        <option value="pt">葡萄牙语</option>
+                        <option value="it">意大利语</option>
+                        <option value="nl">荷兰语</option>
+                        <option value="sv">瑞典语</option>
+                    </select>
+                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <i class="fa fa-chevron-down text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 输入方式选择 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <!-- 麦克风录音区域 -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <i class="fa fa-microphone text-primary mr-2"></i>
+                    麦克风实时录音
+                </h2>
+                <div id="recording-status" class="hidden items-center">
+                    <div class="recording-indicator mr-2"></div>
+                    <span class="text-danger text-sm">正在录音...</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center">
+                <button id="record-btn" class="w-20 h-20 rounded-full bg-primary text-white flex items-center justify-center shadow-lg mb-4 hover:bg-primary/90 transition-colors relative">
+                    <i class="fa fa-microphone text-3xl"></i>
+                    <!-- 录音波形动画 -->
+                    <div id="recording-wave" class="recording-wave absolute inset-0 hidden">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                </button>
+                
+                <!-- 音频电平指示器 -->
+                <div id="audio-level-meter" class="audio-level-meter w-full max-w-xs hidden">
+                    <div id="audio-level-fill" class="audio-level-fill"></div>
+                </div>
+                
+                <p id="record-status-text" class="text-gray-500 text-sm">点击麦克风按钮开始录音</p>
+
+                <!-- 录音计时器 -->
+                <div id="recording-timer" class="text-sm text-gray-600 mt-2 hidden">
+                    录音时长: <span id="timer-display">00:00</span>
+                </div>
+
+                <!-- 录音播放和控制区域 -->
+                <div id="recording-controls" class="mt-6 w-full hidden border-2 border-green-500 bg-yellow-50 p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="block text-sm font-medium text-gray-700">录音文件</label>
+                        <div class="flex space-x-2">
+                            <button id="play-recording-btn" class="text-primary hover:text-primary/80 flex items-center text-sm">
+                                <i class="fa fa-play mr-1"></i> 播放
+                            </button>
+                            <button id="download-recording-btn" class="text-primary hover:text-primary/80 flex items-center text-sm">
+                                <i class="fa fa-download mr-1"></i> 下载
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <audio id="recording-player" class="w-full" controls></audio>
+                    </div>
+                    <button id="translate-recording-btn" class="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center">
+                        <i class="fa fa-language mr-2"></i> 翻译这段录音
+                    </button>
+                </div>
+
+                <div class="mt-6 w-full">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">音频识别文本</label>
+                    <div id="audio-transcription-result" class="min-h-[80px] p-4 border border-gray-200 rounded-lg bg-blue-50 text-gray-800 whitespace-pre-wrap">
+                        音频识别的文本内容将显示在这里...
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 文件上传区域 -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+            <h2 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                <i class="fa fa-file-audio-o text-primary mr-2"></i>
+                上传音频文件
+            </h2>
+
+            <div id="drop-area" class="file-drop-area mb-6">
+                <input
+                        type="file"
+                        id="audio-file"
+                        accept=".mp3,.wav,.ogg,.m4a"
+                        class="hidden"
+                >
+                <div class="flex flex-col items-center justify-center">
+                    <i class="fa fa-cloud-upload text-4xl text-gray-400 mb-3"></i>
+                    <p class="text-gray-600 mb-2">拖放音频文件到此处，或</p>
+                    <button
+                            id="select-file-btn"
+                            class="bg-primary/10 text-primary px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors"
+                    >
+                        选择文件
+                    </button>
+                    <p class="text-xs text-gray-500 mt-3">支持 MP3, WAV, OGG, M4A 格式，文件大小建议不超过100MB</p>
+                </div>
+            </div>
+
+            <!-- 文件信息展示 -->
+            <div id="file-info" class="hidden mb-6">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fa fa-file-audio-o text-primary mr-3"></i>
+                        <div>
+                            <p id="file-name" class="font-medium text-gray-800 truncate max-w-xs"></p>
+                            <p id="file-size" class="text-xs text-gray-500"></p>
+                        </div>
+                    </div>
+                    <button id="remove-file" class="text-gray-400 hover:text-danger transition-colors">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button id="upload-translate-btn" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed" disabled>
+                <i class="fa fa-language mr-2"></i> 上传并翻译
+            </button>
+        </div>
+    </div>
+
+    <!-- 翻译结果区域 -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                <i class="fa fa-language text-primary mr-2"></i>
+                最终翻译结果
+            </h2>
+            <div class="flex space-x-3">
+                <button id="copy-result" class="text-primary hover:text-primary/80 flex items-center transition-colors">
+                    <i class="fa fa-copy mr-1"></i> 复制
+                </button>
+                <button id="speak-result" class="text-primary hover:text-primary/80 flex items-center transition-colors">
+                    <i class="fa fa-volume-up mr-1"></i> 朗读
+                </button>
+                <button id="clear-result" class="text-gray-500 hover:text-danger transition-colors">
+                    <i class="fa fa-trash mr-1"></i> 清空
+                </button>
+            </div>
+        </div>
+
+        <div id="final-translation-result" class="min-h-[150px] p-6 border border-gray-200 rounded-lg bg-gray-50 text-gray-800 text-lg whitespace-pre-wrap">
+            最终翻译结果将显示在这里...
+        </div>
+    </div>
+
+    <!-- 翻译历史区域 -->
+    <div id="history-section" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                <i class="fa fa-history text-primary mr-2"></i>
+                翻译历史
+            </h2>
+            <button id="clear-history" class="text-gray-500 hover:text-danger transition-colors">
+                <i class="fa fa-trash mr-1"></i> 清空历史
+            </button>
+        </div>
+
+        <div id="history-list" class="space-y-4 max-h-[400px] overflow-y-auto">
+            <!-- 历史记录将动态添加到这里 -->
+            <div class="text-center text-gray-500 py-8">
+                暂无翻译历史
+            </div>
+        </div>
+    </div>
+
+
+</main>
+
+<!-- 页脚 -->
+<footer class="bg-white mt-auto py-6 border-t border-gray-200">
+    <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+        <p>© 2025 实时语音翻译工具 - 支持多语言语音识别与翻译</p>
+        <p class="mt-1">使用浏览器Web Speech API和翻译API提供服务</p>
+    </div>
+</footer>
+
+<script>
+    // DOM 元素
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const sourceLangSelect = document.getElementById('source-lang');
+    const targetLangSelect = document.getElementById('target-lang');
+    const recordBtn = document.getElementById('record-btn');
+    const recordingStatus = document.getElementById('recording-status');
+    const recordStatusText = document.getElementById('record-status-text');
+    const audioTranscriptionResult = document.getElementById('audio-transcription-result');
+    const finalTranslationResult = document.getElementById('final-translation-result');
+    const copyResultBtn = document.getElementById('copy-result');
+    const speakResultBtn = document.getElementById('speak-result');
+    const clearResultBtn = document.getElementById('clear-result');
+    const historyBtn = document.getElementById('history-btn');
+    const mobileHistoryBtn = document.getElementById('mobile-history-btn');
+    const historySection = document.getElementById('history-section');
+    const historyList = document.getElementById('history-list');
+    const clearHistoryBtn = document.getElementById('clear-history');
+
+    // 文件上传相关
+    const dropArea = document.getElementById('drop-area');
+    const audioFileInput = document.getElementById('audio-file');
+    const selectFileBtn = document.getElementById('select-file-btn');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const removeFileBtn = document.getElementById('remove-file');
+    const uploadTranslateBtn = document.getElementById('upload-translate-btn');
+
+    // 全局变量
+    let isRecording = false;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let audioContext = null;
+    let analyser = null;
+    let microphone = null;
+    let recordingTimer = null;
+    let recordingStartTime = null;
+    let audioLevelInterval = null;
+    let recordedAudioBlob = null;  // 存储录音的Blob对象
+    let selectedFile = null;
+    let translationHistory = JSON.parse(localStorage.getItem('translationHistory') || '[]');
+    let recognitionConfidence = 0.7;
+
+    // 语言映射表
+    const langMap = {
+        'zh-CN': { name: '中文', translateCode: 'zh' },
+        'en-US': { name: '英语', translateCode: 'en' },
+        'ja-JP': { name: '日语', translateCode: 'ja' },
+        'ko-KR': { name: '韩语', translateCode: 'ko' },
+        'fr-FR': { name: '法语', translateCode: 'fr' },
+        'de-DE': { name: '德语', translateCode: 'de' },
+        'es-ES': { name: '西班牙语', translateCode: 'es' },
+        'ru-RU': { name: '俄语', translateCode: 'ru' }
+    };
+
+    // 显示错误消息
+    function showErrorMessage(message) {
+        // 创建错误提示元素
+        const errorToast = document.createElement('div');
+        errorToast.className = 'fixed top-4 right-4 bg-danger text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center';
+        errorToast.innerHTML = `
+            <i class="fa fa-exclamation-circle mr-2"></i>
+            <span>${message}</span>
+            <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.remove()">
+                <i class="fa fa-times"></i>
+            </button>
+        `;
+        
+        document.body.appendChild(errorToast);
+        
+        // 3秒后自动消失
+        setTimeout(() => {
+            if (errorToast.parentElement) {
+                errorToast.remove();
+            }
+        }, 3000);
+    }
+
+    // 显示成功消息
+    function showSuccessMessage(message) {
+        const successToast = document.createElement('div');
+        successToast.className = 'fixed top-4 right-4 bg-success text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center';
+        successToast.innerHTML = `
+            <i class="fa fa-check-circle mr-2"></i>
+            <span>${message}</span>
+            <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.remove()">
+                <i class="fa fa-times"></i>
+            </button>
+        `;
+        
+        document.body.appendChild(successToast);
+        
+        setTimeout(() => {
+            if (successToast.parentElement) {
+                successToast.remove();
+            }
+        }, 3000);
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+        // 移动端菜单切换
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 初始化语音识别
+        initSpeechRecognition();
+
+        // 录音按钮点击事件
+        recordBtn.addEventListener('click', toggleRecording);
+
+        // 复制结果
+        copyResultBtn.addEventListener('click', copyResultToClipboard);
+
+        // 朗读结果
+        speakResultBtn.addEventListener('click', speakTranslationResult);
+
+        // 清空结果
+        clearResultBtn.addEventListener('click', clearResults);
+
+        // 历史记录按钮
+        historyBtn.addEventListener('click', toggleHistorySection);
+        mobileHistoryBtn.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+            toggleHistorySection();
+        });
+
+        // 清空历史记录
+        clearHistoryBtn.addEventListener('click', clearHistory);
+
+        // 初始化文件上传
+        initFileUpload();
+
+        // 加载历史记录
+        renderHistory();
+
+        // 添加键盘快捷键支持
+        document.addEventListener('keydown', handleKeyboardShortcuts);
+        
+        // 添加录音相关的键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            // 空格键切换录音（当焦点不在输入框时）
+            if (e.code === 'Space' && 
+                e.target.tagName !== 'INPUT' && 
+                e.target.tagName !== 'TEXTAREA' &&
+                !e.target.isContentEditable) {
+                e.preventDefault();
+                toggleRecording();
+            }
+            
+            // ESC键停止录音
+            if (e.code === 'Escape' && isRecording) {
+                e.preventDefault();
+                stopRecording();
+            }
+        });
+        
+        // 录音控制按钮事件监听
+        const playRecordingBtn = document.getElementById('play-recording-btn');
+        const downloadRecordingBtn = document.getElementById('download-recording-btn');
+        const translateRecordingBtn = document.getElementById('translate-recording-btn');
+        
+        if (playRecordingBtn) {
+            playRecordingBtn.addEventListener('click', function() {
+                const player = document.getElementById('recording-player');
+                if (player) {
+                    player.play();
+                }
+            });
+        }
+        
+        if (downloadRecordingBtn) {
+            downloadRecordingBtn.addEventListener('click', function() {
+                if (recordedAudioBlob) {
+                    const url = URL.createObjectURL(recordedAudioBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `recording-${new Date().getTime()}.webm`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+            });
+        }
+        
+        if (translateRecordingBtn) {
+            translateRecordingBtn.addEventListener('click', function() {
+                if (recordedAudioBlob) {
+                    translateAudioBlob(recordedAudioBlob);
+                }
+            });
+        }
+    });
+
+    // 初始化录音功能
+    function initSpeechRecognition() {
+        // 检查浏览器录音支持
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            recordStatusText.textContent = '您的浏览器不支持录音功能';
+            recordBtn.disabled = true;
+            recordBtn.classList.add('bg-gray-300');
+            return;
+        }
+
+        // 源语言变化时更新界面（保留原有功能）
+        sourceLangSelect.addEventListener('change', () => {
+            // 可以在这里添加语言相关的处理逻辑
+        });
+    }
+
+    // 切换录音状态
+    function toggleRecording() {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    }
+
+    // 开始录音
+    function startRecording() {
+        isRecording = true;
+        audioChunks = [];
+        recordingStartTime = Date.now();
+        
+        // 更新UI状态
+        recordBtn.classList.remove('bg-primary');
+        recordBtn.classList.add('bg-danger');
+        recordBtn.innerHTML = '<i class="fa fa-stop text-3xl"></i>';
+        recordingStatus.classList.remove('hidden');
+        recordingStatus.classList.add('flex');
+        
+        // 显示录音可视化元素
+        const recordingWave = document.getElementById('recording-wave');
+        const audioLevelMeter = document.getElementById('audio-level-meter');
+        const recordingTimer = document.getElementById('recording-timer');
+        
+        if (recordingWave) recordingWave.classList.remove('hidden');
+        if (audioLevelMeter) audioLevelMeter.classList.remove('hidden');
+        if (recordingTimer) recordingTimer.classList.remove('hidden');
+        
+        recordStatusText.textContent = '正在录音，请开始说话...';
+        audioTranscriptionResult.textContent = '';
+
+        // 请求麦克风权限并开始录音
+        navigator.mediaDevices.getUserMedia({ 
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+                channelCount: 1,
+                sampleRate: 44100
+            } 
+        })
+        .then(stream => {
+            // 初始化音频分析
+            initAudioAnalysis(stream);
+            
+            // 创建MediaRecorder实例，使用更好的音频编码
+            const options = {
+                mimeType: 'audio/webm;codecs=opus',
+                audioBitsPerSecond: 128000
+            };
+            
+            // 检查浏览器支持的MIME类型
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options.mimeType = 'audio/webm';
+            }
+            
+            mediaRecorder = new MediaRecorder(stream, options);
+            
+            // 收集音频数据
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) {
+                    audioChunks.push(event.data);
+                }
+            };
+            
+            // 录音停止时处理音频
+            mediaRecorder.onstop = () => {
+                // 先保存需要的属性值
+                const mimeType = mediaRecorder ? (mediaRecorder.mimeType || 'audio/webm') : 'audio/webm';
+                
+                // 清理资源
+                cleanupRecording(stream);
+                
+                // 创建音频Blob
+                const audioBlob = new Blob(audioChunks, { type: mimeType });
+                recordedAudioBlob = audioBlob;  // 保存录音Blob供后续使用
+                
+                // 调试信息
+                console.log('录音已停止，audioBlob大小:', audioBlob.size, 'bytes');
+                console.log('audioChunks数量:', audioChunks.length);
+                
+                // 显示录音控制面板
+                showRecordingControls(audioBlob);
+                
+                // 可选：自动开始翻译（保持原有行为）
+                // translateAudioBlob(audioBlob);
+            };
+            
+            // 开始录音
+            mediaRecorder.start(1000); // 每秒触发一次dataavailable事件
+            recordStatusText.textContent = '正在录音中... 点击停止按钮结束录音';
+            
+            // 启动录音计时器
+            startRecordingTimer();
+        })
+        .catch(error => {
+            console.error('获取麦克风权限失败:', error);
+            recordStatusText.textContent = '录音启动失败，请允许麦克风权限';
+            stopRecording();
+        });
+    }
+
+    // 停止录音
+    function stopRecording() {
+        isRecording = false;
+        
+        // 更新UI状态
+        recordBtn.classList.remove('bg-danger');
+        recordBtn.classList.add('bg-primary');
+        recordBtn.innerHTML = '<i class="fa fa-microphone text-3xl"></i>';
+        recordingStatus.classList.add('hidden');
+        recordingStatus.classList.remove('flex');
+        
+        // 隐藏录音可视化元素
+        const recordingWave = document.getElementById('recording-wave');
+        const audioLevelMeter = document.getElementById('audio-level-meter');
+        const recordingTimer = document.getElementById('recording-timer');
+        
+        if (recordingWave) recordingWave.classList.add('hidden');
+        if (audioLevelMeter) audioLevelMeter.classList.add('hidden');
+        if (recordingTimer) recordingTimer.classList.add('hidden');
+        
+        // 停止录音计时器
+        stopRecordingTimer();
+        
+        // 停止音频分析
+        stopAudioAnalysis();
+
+        // 停止录音
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            recordStatusText.textContent = '正在处理录音...';
+        } else {
+            recordStatusText.textContent = '录音已停止';
+            audioTranscriptionResult.textContent = '录音的文字内容将显示在这里...';
+        }
+    }
+    
+    // 初始化音频分析
+    function initAudioAnalysis(stream) {
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            microphone = audioContext.createMediaStreamSource(stream);
+            
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            microphone.connect(analyser);
+            
+            // 开始音频电平监测
+            audioLevelInterval = setInterval(() => {
+                analyser.getByteFrequencyData(dataArray);
+                
+                // 计算平均音量
+                let sum = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    sum += dataArray[i];
+                }
+                const average = sum / bufferLength;
+                
+                // 转换为百分比 (0-100)
+                const level = Math.min(100, Math.max(0, (average / 255) * 100));
+                
+                // 更新UI
+                const levelFill = document.getElementById('audio-level-fill');
+                if (levelFill) {
+                    levelFill.style.width = level + '%';
+                }
+            }, 100);
+        } catch (error) {
+            console.warn('音频分析初始化失败:', error);
+        }
+    }
+    
+    // 停止音频分析
+    function stopAudioAnalysis() {
+        if (audioLevelInterval) {
+            clearInterval(audioLevelInterval);
+            audioLevelInterval = null;
+        }
+        
+        if (analyser) {
+            analyser.disconnect();
+            analyser = null;
+        }
+        
+        if (microphone) {
+            microphone.disconnect();
+            microphone = null;
+        }
+        
+        if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+        }
+    }
+    
+    // 清理录音资源
+    function cleanupRecording(stream) {
+        // 停止音频分析
+        stopAudioAnalysis();
+        
+        // 停止所有音频轨道
+        if (stream) {
+            stream.getTracks().forEach(track => {
+                if (track.readyState === 'live') {
+                    track.stop();
+                }
+            });
+        }
+        
+        // 重置MediaRecorder
+        mediaRecorder = null;
+    }
+    
+    // 启动录音计时器
+    function startRecordingTimer() {
+        recordingTimer = setInterval(() => {
+            if (isRecording && recordingStartTime) {
+                const elapsed = Date.now() - recordingStartTime;
+                const seconds = Math.floor(elapsed / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const displaySeconds = seconds % 60;
+                
+                const timerDisplay = document.getElementById('timer-display');
+                if (timerDisplay) {
+                    timerDisplay.textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+                }
+            }
+        }, 1000);
+    }
+    
+    // 停止录音计时器
+    function stopRecordingTimer() {
+        if (recordingTimer) {
+            clearInterval(recordingTimer);
+            recordingTimer = null;
+        }
+        recordingStartTime = null;
+        
+        // 重置计时器显示
+        const timerDisplay = document.getElementById('timer-display');
+        if (timerDisplay) {
+            timerDisplay.textContent = '00:00';
+        }
+    }
+    
+    // 显示录音控制面板
+    function showRecordingControls(audioBlob) {
+        console.log('调用showRecordingControls函数');
+        
+        const recordingControls = document.getElementById('recording-controls');
+        const recordingPlayer = document.getElementById('recording-player');
+        
+        console.log('recordingControls元素:', recordingControls);
+        console.log('recordingPlayer元素:', recordingPlayer);
+        
+        if (recordingControls && recordingPlayer) {
+            console.log('找到DOM元素，开始显示控制面板');
+            
+            // 创建Object URL用于播放
+            const audioUrl = URL.createObjectURL(audioBlob);
+            recordingPlayer.src = audioUrl;
+            
+            console.log('设置音频源:', audioUrl);
+            
+            // 显示控制面板
+            const wasHidden = recordingControls.classList.contains('hidden');
+            recordingControls.classList.remove('hidden');
+            
+            console.log('控制面板显示状态变化:', wasHidden ? '已显示' : '已经是显示状态');
+            
+            // 更新状态文本
+            recordStatusText.textContent = '录音已完成，可以播放或翻译';
+            console.log('更新状态文本');
+        } else {
+            console.error('找不到录音控制面板DOM元素');
+            console.error('recording-controls存在:', !!recordingControls);
+            console.error('recording-player存在:', !!recordingPlayer);
+        }
+    }
+    
+    // 隐藏录音控制面板
+    function hideRecordingControls() {
+        const recordingControls = document.getElementById('recording-controls');
+        if (recordingControls) {
+            recordingControls.classList.add('hidden');
+        }
+        
+        // 清理录音Blob
+        recordedAudioBlob = null;
+        const recordingPlayer = document.getElementById('recording-player');
+        if (recordingPlayer) {
+            recordingPlayer.src = '';
+        }
+    }
+
+
+    // 复制结果到剪贴板
+    async function copyResultToClipboard() {
+        const text = finalTranslationResult.textContent;
+        if (text === '翻译结果将显示在这里...') return;
+
+        try {
+            await navigator.clipboard.writeText(text);
+
+            // 显示复制成功提示
+            const originalText = copyResultBtn.innerHTML;
+            copyResultBtn.innerHTML = '<i class="fa fa-check mr-1"></i> 已复制';
+            copyResultBtn.classList.add('text-success');
+
+            setTimeout(() => {
+                copyResultBtn.innerHTML = originalText;
+                copyResultBtn.classList.remove('text-success');
+            }, 2000);
+            
+            showSuccessMessage('翻译结果已复制到剪贴板');
+        } catch (err) {
+            showErrorMessage('复制失败: ' + err.message);
+        }
+    }
+
+    // 朗读翻译结果
+    function speakTranslationResult() {
+        const text = finalTranslationResult.textContent;
+        if (text === '翻译结果将显示在这里...') return;
+
+        // 检查浏览器支持
+        if (!('speechSynthesis' in window)) {
+            showErrorMessage('您的浏览器不支持语音合成功能');
+            return;
+        }
+
+        // 获取目标语言代码
+        const targetLang = targetLangSelect.value;
+        const langCode = langMap[targetLang]?.translateCode || targetLang.split('-')[0];
+
+        // 创建语音合成实例
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = targetLang;
+        utterance.volume = 1;
+        utterance.rate = 1;
+        utterance.pitch = 1;
+
+        // 播放语音
+        window.speechSynthesis.speak(utterance);
+        
+        // 显示朗读状态
+        const originalText = speakResultBtn.innerHTML;
+        speakResultBtn.innerHTML = '<i class="fa fa-volume-up mr-1"></i> 朗读中...';
+        speakResultBtn.disabled = true;
+        
+        utterance.onend = () => {
+            speakResultBtn.innerHTML = originalText;
+            speakResultBtn.disabled = false;
+        };
+        
+        utterance.onerror = (event) => {
+            showErrorMessage('语音朗读失败: ' + event.error);
+            speakResultBtn.innerHTML = originalText;
+            speakResultBtn.disabled = false;
+        };
+    }
+
+    // 清空结果
+    function clearResults() {
+        audioTranscriptionResult.textContent = '录音的文字内容将显示在这里...';
+        finalTranslationResult.textContent = '翻译结果将显示在这里...';
+
+        if (isRecording) {
+            stopRecording();
+        }
+
+        // 清空文件上传
+        clearFile();
+        
+        // 隐藏录音控制面板
+        hideRecordingControls();
+        
+        // 显示成功消息
+        showSuccessMessage('已清空所有内容');
+    }
+
+    // 切换历史记录区域
+    function toggleHistorySection() {
+        historySection.classList.toggle('hidden');
+        if (!historySection.classList.contains('hidden')) {
+            renderHistory();
+        }
+    }
+
+    // 保存到历史记录
+    function saveToHistory(sourceText, translatedText, sourceLang, targetLang) {
+        const historyItem = {
+            id: Date.now(),
+            sourceText,
+            translatedText,
+            sourceLang,
+            targetLang,
+            timestamp: new Date().toLocaleString()
+        };
+
+        translationHistory.unshift(historyItem);
+        // 限制历史记录数量
+        if (translationHistory.length > 50) {
+            translationHistory = translationHistory.slice(0, 50);
+        }
+
+        // 保存到本地存储
+        localStorage.setItem('translationHistory', JSON.stringify(translationHistory));
+
+        // 更新历史记录UI
+        renderHistory();
+    }
+
+    // 渲染历史记录
+    function renderHistory() {
+        if (translationHistory.length === 0) {
+            historyList.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        暂无翻译历史
+                    </div>
+                `;
+            return;
+        }
+
+        historyList.innerHTML = translationHistory.map(item => `
+                <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs text-gray-500">${item.timestamp}</span>
+                        <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                            ${item.sourceLang} → ${item.targetLang}
+                        </span>
+                    </div>
+                    <div class="mb-2 text-gray-800">${item.sourceText}</div>
+                    <div class="text-primary font-medium">${item.translatedText}</div>
+                    <div class="mt-3 flex space-x-2">
+                        <button class="text-xs text-gray-500 hover:text-primary" onclick="useHistoryItem(${item.id})">
+                            <i class="fa fa-repeat mr-1"></i> 使用
+                        </button>
+                        <button class="text-xs text-gray-500 hover:text-danger" onclick="deleteHistoryItem(${item.id})">
+                            <i class="fa fa-trash mr-1"></i> 删除
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    // 使用历史记录项
+    window.useHistoryItem = function(id) {
+        const item = translationHistory.find(item => item.id === id);
+        if (item) {
+            audioTranscriptionResult.textContent = item.sourceText;
+            finalTranslationResult.textContent = item.translatedText;
+
+            // 滚动到结果区域
+            finalTranslationResult.scrollIntoView({ behavior: 'smooth' });
+
+            // 隐藏历史区域（移动端）
+            if (window.innerWidth < 768) {
+                historySection.classList.add('hidden');
+            }
+        }
+    };
+
+    // 删除历史记录项
+    window.deleteHistoryItem = function(id) {
+        translationHistory = translationHistory.filter(item => item.id !== id);
+        localStorage.setItem('translationHistory', JSON.stringify(translationHistory));
+        renderHistory();
+    };
+
+    // 清空历史记录
+    function clearHistory() {
+        if (confirm('确定要清空所有翻译历史吗？')) {
+            translationHistory = [];
+            localStorage.setItem('translationHistory', JSON.stringify(translationHistory));
+            renderHistory();
+            showSuccessMessage('翻译历史已清空');
+        }
+    }
+
+    // 加载设置
+    // 初始化文件上传
+    function initFileUpload() {
+        // 文件选择按钮点击
+        selectFileBtn.addEventListener('click', () => {
+            audioFileInput.click();
+        });
+
+        // 文件选择变化
+        audioFileInput.addEventListener('change', handleFileSelect);
+
+        // 拖放功能
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('file-drop-area-active');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('file-drop-area-active');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                handleFiles(files);
+            }
+        }
+
+        // 移除文件
+        removeFileBtn.addEventListener('click', clearFile);
+
+        // 上传并翻译
+        uploadTranslateBtn.addEventListener('click', uploadAndTranslateFile);
+    }
+
+    // 处理文件选择
+    function handleFileSelect(e) {
+        const files = e.target.files;
+        if (files.length > 0) {
+            handleFiles(files);
+        }
+    }
+
+    // 处理文件
+    function handleFiles(files) {
+        const file = files[0];
+
+        // 检查文件类型
+        const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/x-m4a'];
+        const allowedExtensions = ['.mp3', '.wav', '.ogg', '.m4a'];
+
+        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+        if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+            alert('请选择支持的音频格式：MP3, WAV, OGG, M4A');
+            return;
+        }
+
+        selectedFile = file;
+
+        // 显示文件信息
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.classList.remove('hidden');
+
+        // 启用转换按钮
+        uploadTranslateBtn.disabled = false;
+    }
+
+    // 清除文件
+    function clearFile() {
+        selectedFile = null;
+        audioFileInput.value = '';
+        fileInfo.classList.add('hidden');
+        uploadTranslateBtn.disabled = true;
+    }
+
+    // 格式化文件大小
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // 处理录音音频Blob并调用后端流式翻译（两步法）
+    function translateAudioBlob(audioBlob) {
+        // 获取目标语言
+        const targetLang = targetLangSelect.value;
+        const targetLangName = langMap[targetLang]?.name || targetLang;
+
+        // 显示处理状态
+        recordStatusText.textContent = '正在上传音频...';
+        audioTranscriptionResult.textContent = '等待识别结果...';
+        finalTranslationResult.textContent = '等待最终结果...';
+        
+        // 添加加载动画
+        audioTranscriptionResult.classList.add('pulse-animation');
+        finalTranslationResult.classList.add('pulse-animation');
+        
+        // 禁用相关按钮防止重复提交
+        recordBtn.disabled = true;
+        uploadTranslateBtn.disabled = true;
+
+        // 第一步：上传音频文件获取任务ID
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'recording.webm');
+        formData.append('targetLanguage', targetLangName);
+
+        fetch('/auto/uploadAudio', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const taskId = data.taskId;
+            console.log('获得任务ID:', taskId);
+            recordStatusText.textContent = '正在处理中...';
+            
+            // 第二步：基于任务ID建立SSE连接
+            connectToSSE(taskId, targetLang, targetLangName);
+        })
+        .catch(error => {
+            console.error('上传失败:', error);
+            handleError('音频上传失败: ' + error.message);
+        });
+    }
+    
+    // 建立SSE连接获取处理结果
+    function connectToSSE(taskId, targetLang, targetLangName) {
+        let accumulatedTranslation = '';
+        
+        // 直接使用EventSource连接SSE接口
+        const eventSource = new EventSource(`/auto/getResultStream/${taskId}`);
+        
+        eventSource.onmessage = function(event) {
+            console.log('Received SSE message:', event.data);
+        };
+        
+        eventSource.addEventListener('transcription', function(event) {
+            // 处理音频识别文本
+            const transcription = event.data;
+            audioTranscriptionResult.classList.remove('pulse-animation');
+            audioTranscriptionResult.textContent = transcription;
+            audioTranscriptionResult.classList.add('fade-in');
+            recordStatusText.textContent = '音频识别完成，正在进行翻译...';
+            showSuccessMessage('音频识别完成');
+        });
+        
+        eventSource.addEventListener('translation', function(event) {
+            // 处理翻译文本（流式）
+            const translationChunk = event.data;
+            accumulatedTranslation += ' ' + translationChunk;  // SSE直接返回完整内容
+            finalTranslationResult.textContent = accumulatedTranslation;
+        });
+        
+        eventSource.addEventListener('end', function(event) {
+            // 翻译完成
+            eventSource.close();
+            audioTranscriptionResult.classList.remove('pulse-animation');
+            finalTranslationResult.classList.remove('pulse-animation');
+            finalTranslationResult.classList.add('fade-in');
+            recordStatusText.textContent = '翻译完成';
+            
+            // 保存到历史记录
+            const sourceLangCode = getSourceLanguageCode();
+            const targetLangCode = langMap[targetLang]?.translateCode || targetLang.split('-')[0];
+            saveToHistory(audioTranscriptionResult.textContent, accumulatedTranslation, sourceLangCode, targetLangCode);
+            
+            showSuccessMessage('语音翻译完成');
+            
+            // 恢复按钮状态
+            recordBtn.disabled = false;
+            uploadTranslateBtn.disabled = selectedFile === null;
+
+            uploadTranslateBtn.innerHTML = '<i class="fa fa-language mr-2"></i> 重新翻译';
+        });
+        
+        eventSource.addEventListener('error', function(event) {
+            console.error('SSE连接错误:', event);
+            eventSource.close();
+            handleError('SSE连接失败');
+        });
+        
+        // 30秒超时处理
+        setTimeout(() => {
+            if (eventSource.readyState !== EventSource.CLOSED) {
+                eventSource.close();
+                if (audioTranscriptionResult.textContent === '等待识别结果...') {
+                    handleError('处理超时');
+                }
+            }
+        }, 30000);
+    }
+    
+    // 统一错误处理
+    function handleError(message) {
+        recordStatusText.textContent = '处理失败，请重试';
+        audioTranscriptionResult.classList.remove('pulse-animation');
+        finalTranslationResult.classList.remove('pulse-animation');
+        audioTranscriptionResult.textContent = '识别失败';
+        finalTranslationResult.textContent = '处理失败';
+        showErrorMessage(message);
+        
+        // 恢复按钮状态
+        recordBtn.disabled = false;
+        uploadTranslateBtn.disabled = selectedFile === null;
+    }
+
+    // 获取源语言代码
+    function getSourceLanguageCode() {
+        const sourceLang = sourceLangSelect.value;
+        return langMap[sourceLang]?.translateCode || sourceLang.split('-')[0];
+    }
+
+    // 上传并翻译文件（两步法）
+    function uploadAndTranslateFile() {
+        if (!selectedFile) return;
+
+        uploadTranslateBtn.disabled = true;
+        uploadTranslateBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 上传中...';
+
+        // 获取目标语言
+        const targetLang = targetLangSelect.value;
+        const targetLangName = langMap[targetLang]?.name || targetLang;
+
+        // 显示处理状态
+        audioTranscriptionResult.textContent = '等待识别结果...';
+        finalTranslationResult.textContent = '等待最终结果...';
+        audioTranscriptionResult.classList.add('pulse-animation');
+        finalTranslationResult.classList.add('pulse-animation');
+
+        // 第一步：上传音频文件获取任务ID
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('targetLanguage', targetLangName);
+
+        fetch('/auto/uploadAudio', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const taskId = data.taskId;
+            console.log('获得任务ID:', taskId);
+            uploadTranslateBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 处理中...';
+            
+            // 第二步：基于任务ID建立轮询连接
+            connectToSSE(taskId, targetLang, targetLangName);
+        })
+        .catch(error => {
+            console.error('上传失败:', error);
+            handleError('文件上传失败: ' + error.message);
+        });
+    }
+    // 键盘快捷键处理
+    function handleKeyboardShortcuts(event) {
+        // Ctrl/Cmd + Enter 开始/停止录音
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+            event.preventDefault();
+            toggleRecording();
+        }
+
+        // ESC 键停止录音
+        if (event.key === 'Escape') {
+            if (isRecording) {
+                stopRecording();
+            }
+        }
+    }
+
+</script>
+</body>
+</html>

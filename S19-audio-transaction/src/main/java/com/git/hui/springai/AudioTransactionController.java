@@ -78,7 +78,7 @@ public class AudioTransactionController {
                 .responseFormat(OpenAiAudioApi.TranscriptResponseFormat.TEXT)
                 .build();
         AudioTranscriptionPrompt prompt = new AudioTranscriptionPrompt(resource, options);
-        AudioTranscriptionResponse response = initTranscriptionModel.call(prompt);
+        AudioTranscriptionResponse response = transcriptionModel.call(prompt);
         log.info("response -> {}", response.getResult());
         return response.getResult().getOutput();
     }
@@ -92,7 +92,7 @@ public class AudioTransactionController {
                 .language("zh")
                 .build();
         AudioTranscriptionPrompt prompt = new AudioTranscriptionPrompt(resource, options);
-        AudioTranscriptionResponse response = transcriptionModel.call(prompt);
+        AudioTranscriptionResponse response = initTranscriptionModel.call(prompt);
         log.info("response -> {}", response.getResult());
         return response.getResult().getOutput();
     }

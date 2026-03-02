@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频转文字 - 语音识别工具</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 自定义配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#6366F1',
+                        accent: '#8B5CF6',
+                        success: '#10B981',
+                        danger: '#EF4444',
+                        warning: '#F59E0B',
+                        info: '#06B6D4'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .file-drop-area {
+                @apply border-2 border-dashed border-gray-300 rounded-xl p-8 text-center transition-all duration-300 hover:border-primary/50 hover:bg-primary/5;
+            }
+            .file-drop-area-active {
+                @apply border-primary bg-primary/10;
+            }
+            .loader {
+                @apply border-4 border-gray-200 border-t-primary rounded-full w-8 h-8 animate-spin;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+    <!-- 顶部导航 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-microphone text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">音频转文字工具</h1>
+            </div>
+            <div>
+                <!-- 设置按钮已移除 -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+
+        <!-- 上传区域 -->
+        <section class="mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">上传音频文件</h2>
+                
+                <!-- 文件上传区域 -->
+                <div id="drop-area" class="file-drop-area mb-6">
+                    <input 
+                        type="file" 
+                        id="audio-file" 
+                        accept="audio/*,.mp3,.wav,.flac,.aac,.m4a,.ogg,.wma" 
+                        class="hidden"
+                    >
+                    <div class="flex flex-col items-center justify-center">
+                        <i class="fa fa-cloud-upload text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600 mb-2">拖放MP3文件到此处，或</p>
+                        <button 
+                            id="select-file-btn" 
+                            class="bg-primary/10 text-primary px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors"
+                        >
+                            选择文件
+                        </button>
+                        <p class="text-xs text-gray-500 mt-3">支持常见音频格式（MP3、WAV、FLAC、AAC等），文件大小建议不超过100MB</p>
+                    </div>
+                </div>
+
+                <!-- 文件信息展示 -->
+                <div id="file-info" class="hidden mb-6">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fa fa-file-audio-o text-primary mr-3"></i>
+                            <div>
+                                <p id="file-name" class="font-medium text-gray-800 truncate max-w-xs"></p>
+                                <p id="file-size" class="text-xs text-gray-500"></p>
+                            </div>
+                        </div>
+                        <button id="remove-file" class="text-gray-400 hover:text-danger transition-colors">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 转换按钮 -->
+                <button 
+                    id="convert-btn" 
+                    class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
+                    disabled
+                >
+                    <span id="convert-btn-text">开始转换</span>
+                    <div id="loading-spinner" class="loader hidden ml-3"></div>
+                </button>
+            </div>
+        </section>
+
+        <!-- 结果展示区域 -->
+        <section id="result-section" class="hidden">
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">识别结果</h2>
+                    <button id="copy-result" class="text-primary hover:text-primary/80 flex items-center transition-colors">
+                        <i class="fa fa-copy mr-1"></i> 复制文本
+                    </button>
+                </div>
+                
+                <!-- 结果内容 -->
+                <div id="result-container" class="relative">
+                    <div id="loading-indicator" class="hidden absolute inset-0 bg-white/80 flex items-center justify-center">
+                        <div class="loader"></div>
+                    </div>
+                    
+                    <div id="error-message" class="hidden p-4 bg-danger/10 text-danger rounded-lg mb-4"></div>
+                    
+                    <div id="result-content" class="min-h-[200px] p-4 border border-gray-200 rounded-lg whitespace-pre-wrap text-gray-800">
+                        <!-- 识别结果将显示在这里 -->
+                    </div>
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="flex space-x-3 mt-4">
+                    <button id="download-result" class="flex-1 bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center">
+                        <i class="fa fa-download mr-2"></i> 下载文本
+                    </button>
+                    <button id="new-conversion" class="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center">
+                        <i class="fa fa-refresh mr-2"></i> 新的转换
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white mt-auto py-6 border-t border-gray-200">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>© 2025 音频转文字工具 - 使用 SiliconFlow API 提供语音识别服务</p>
+            <p class="mt-1">仅用于学习和测试，请勿用于商业用途</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM 元素
+        const dropArea = document.getElementById('drop-area');
+        const audioFileInput = document.getElementById('audio-file');
+        const selectFileBtn = document.getElementById('select-file-btn');
+        const fileInfo = document.getElementById('file-info');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const removeFileBtn = document.getElementById('remove-file');
+        const convertBtn = document.getElementById('convert-btn');
+        const convertBtnText = document.getElementById('convert-btn-text');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const resultSection = document.getElementById('result-section');
+        const resultContent = document.getElementById('result-content');
+        const errorMessage = document.getElementById('error-message');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const copyResultBtn = document.getElementById('copy-result');
+        const downloadResultBtn = document.getElementById('download-result');
+        const newConversionBtn = document.getElementById('new-conversion');
+        // API Key相关元素已移除
+
+        // 全局变量
+        let selectedFile = null;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 文件选择按钮点击
+            selectFileBtn.addEventListener('click', () => {
+                audioFileInput.click();
+            });
+
+            // 文件选择变化
+            audioFileInput.addEventListener('change', handleFileSelect);
+
+            // 拖放功能
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.classList.add('file-drop-area-active');
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('file-drop-area-active');
+            }
+
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    handleFiles(files);
+                }
+            }
+
+            // 移除文件
+            removeFileBtn.addEventListener('click', clearFile);
+
+            // 转换按钮点击
+            convertBtn.addEventListener('click', convertAudioToText);
+
+            // 复制结果
+            copyResultBtn.addEventListener('click', copyResultToClipboard);
+
+            // 下载结果
+            downloadResultBtn.addEventListener('click', downloadResult);
+
+            // 新的转换
+            newConversionBtn.addEventListener('click', resetAll);
+
+            // 设置相关功能已移除
+        });
+
+        // 处理文件选择
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                handleFiles(files);
+            }
+        }
+
+        // 处理文件
+        function handleFiles(files) {
+            const file = files[0];
+            
+            // 检查文件类型 - 支持多种音频格式
+            const allowedTypes = [
+                'audio/mpeg',      // MP3
+                'audio/wav',       // WAV
+                'audio/flac',      // FLAC
+                'audio/aac',       // AAC
+                'audio/mp4',       // M4A
+                'audio/ogg',       // OGG
+                'audio/x-ms-wma'   // WMA
+            ];
+            
+            const allowedExtensions = ['.mp3', '.wav', '.flac', '.aac', '.m4a', '.ogg', '.wma'];
+            
+            const isValidType = allowedTypes.includes(file.type);
+            const hasValidExtension = allowedExtensions.some(ext => 
+                file.name.toLowerCase().endsWith(ext)
+            );
+            
+            if (!isValidType && !hasValidExtension) {
+                showError('请选择支持的音频格式文件（MP3、WAV、FLAC、AAC等）');
+                return;
+            }
+
+            selectedFile = file;
+            
+            // 显示文件信息
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.remove('hidden');
+            
+            // 启用转换按钮
+            convertBtn.disabled = false;
+        }
+
+        // 清除文件
+        function clearFile() {
+            selectedFile = null;
+            audioFileInput.value = '';
+            fileInfo.classList.add('hidden');
+            convertBtn.disabled = true;
+        }
+
+        // 转换音频到文本 - 调用本地后端接口
+        async function convertAudioToText() {
+            if (!selectedFile) return;
+
+            // 显示加载状态
+            convertBtnText.textContent = '转换中';
+            loadingSpinner.classList.remove('hidden');
+            convertBtn.disabled = true;
+
+            try {
+                // 显示结果区域
+                resultSection.classList.remove('hidden');
+                loadingIndicator.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+                
+                // 滚动到结果区域
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+
+                // 创建FormData对象来传递文件
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                
+                // 调用本地后端接口
+                const response = await fetch('/translateAudio', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                // 检查响应状态
+                if (!response.ok) {
+                    throw new Error(`请求失败: ${response.status} ${response.statusText}`);
+                }
+
+                // 解析响应数据（后端直接返回文本结果）
+                const result = await response.text();
+                handleLocalApiResponse(result);
+
+            } catch (error) {
+                // 处理错误
+                showError(`转换失败：${error.message}`);
+                console.error('转换错误:', error);
+            } finally {
+                // 隐藏加载状态
+                convertBtnText.textContent = '开始转换';
+                loadingSpinner.classList.add('hidden');
+                loadingIndicator.classList.add('hidden');
+                convertBtn.disabled = false;
+            }
+        }
+
+        // 处理本地API响应
+        function handleLocalApiResponse(result) {
+            console.log('后端响应数据:', result);
+            
+            // 后端直接返回转录文本
+            if (result && result.trim()) {
+                resultContent.textContent = result;
+            } else {
+                showError('转录结果为空');
+            }
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+
+        // 复制结果到剪贴板
+        async function copyResultToClipboard() {
+            const text = resultContent.textContent;
+            if (!text) return;
+
+            try {
+                await navigator.clipboard.writeText(text);
+                
+                // 显示复制成功提示
+                const originalText = copyResultBtn.innerHTML;
+                copyResultBtn.innerHTML = '<i class="fa fa-check mr-1"></i> 复制成功';
+                copyResultBtn.classList.add('text-success');
+                
+                setTimeout(() => {
+                    copyResultBtn.innerHTML = originalText;
+                    copyResultBtn.classList.remove('text-success');
+                }, 2000);
+            } catch (err) {
+                showError('复制失败：' + err.message);
+            }
+        }
+
+        // 下载结果
+        function downloadResult() {
+            const text = resultContent.textContent;
+            if (!text) return;
+
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `音频转文字_${new Date().getTime()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 0);
+        }
+
+        // 重置所有状态
+        function resetAll() {
+            clearFile();
+            resultSection.classList.add('hidden');
+            resultContent.textContent = '';
+            errorMessage.classList.add('hidden');
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

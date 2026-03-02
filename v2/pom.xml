@@ -29,6 +29,7 @@
         <module>T02-manual-qa-cli-robot</module>
         <module>T03-manual-qa-web-robot</module>
         <module>T04-todo-agent</module>
+        <module>T05-voice-chat-robot</module>
     </modules>
 
     <dependencyManagement>
