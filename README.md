@@ -66,6 +66,7 @@ v2 对应的目录下，存放的是基于 SpringAI 2.x 的示例工程
 - [x] [再见，OCR模板！你好，发票智能体：基于SpringAI与大模型的零配置发票智能提取架构](https://mp.weixin.qq.com/s/SnXdTB6tYqAzG7HgbnTSAQ)
 - [x] [实战 | 零基础搭建知识库问答机器人：基于SpringAI+RAG的完整实现](https://mp.weixin.qq.com/s/NHqLJbos-_nrxNNmhg7IBQ)
 - [x] [我用SpringAI造了个「微信红包封面设计师」](https://mp.weixin.qq.com/s/QyuWZ4EZ32pbcWn3fVphHQ)
+- [x] [实战干货！Spring AI 集成语音识别，实现实时翻译机器人的完整指南](https://mp.weixin.qq.com/s/qF0RfLts-fuMzv-uJZnBig)
 
 
 对应的应用示例
