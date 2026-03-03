@@ -22,7 +22,8 @@ v2 对应的目录下，存放的是基于 SpringAI 2.x 的示例工程
 
 ### 1.基础教程
 
-主要介绍SpringAI的基础使用，对应的项目工程以 `Sxx-` 开头，通过这些实例，您将掌握SpringAI的基础知识（如提示词、上下文、架构化输出、tool calling, MCP, advise, ChatClient, 多模型等），并开始使用SpringAI进行大模型应用开发
+主要介绍SpringAI的基础使用，对应的项目工程以 `Sxx-` 开头，通过这些实例，您将掌握SpringAI的基础知识（如提示词、上下文、架构化输出、tool
+calling, MCP, advise, ChatClient, 多模型等），并开始使用SpringAI进行大模型应用开发
 
 - [x] [01.创建一个SpringAI-Demo工程.md](docs/01.创建一个SpringAI-Demo工程.md)
 - [x] [02.提示词的使用.md](docs/02.提示词设置.md)
@@ -61,24 +62,24 @@ v2 对应的目录下，存放的是基于 SpringAI 2.x 的示例工程
 
 以搭建完整可用的SpringAI应用为目的，演示SpringAI的业务边界和表现，对应项目工都放在 [app-projects](./app-projects) 下
 
-- [x] [从0到1创建一个基于天气的旅游美食推荐智能体](docs/D01.从0到1创建一个基于天气的旅游美食推荐智能体.md) 
+- [x] [从0到1创建一个基于天气的旅游美食推荐智能体](docs/D01.从0到1创建一个基于天气的旅游美食推荐智能体.md)
 - [x] [大模型应用开发实战：两百行实现一个自然语言地址提取智能体](https://mp.weixin.qq.com/s/96rHyp_gBUgmA2dhSbzNww)
 - [x] [再见，OCR模板！你好，发票智能体：基于SpringAI与大模型的零配置发票智能提取架构](https://mp.weixin.qq.com/s/SnXdTB6tYqAzG7HgbnTSAQ)
 - [x] [实战 | 零基础搭建知识库问答机器人：基于SpringAI+RAG的完整实现](https://mp.weixin.qq.com/s/NHqLJbos-_nrxNNmhg7IBQ)
 - [x] [我用SpringAI造了个「微信红包封面设计师」](https://mp.weixin.qq.com/s/QyuWZ4EZ32pbcWn3fVphHQ)
 - [x] [实战干货！Spring AI 集成语音识别，实现实时翻译机器人的完整指南](https://mp.weixin.qq.com/s/qF0RfLts-fuMzv-uJZnBig)
 
-
 对应的应用示例
 
-| RAG问答机器人 | 微信红包封面设计Agent                | 
-|----------|------------------------------|
-| ![](https://ppai.top/ai-guides/imgs/column/springai/D04-3.gif)  | ![](./docs/static/T03-1.gif) |
+| Agent         | 示意图                                                            | 
+|---------------|----------------------------------------------------------------|
+| RAG问答机器人      | ![](https://ppai.top/ai-guides/imgs/column/springai/D04-3.gif) |
+| 微信红包封面设计Agent | ![](./docs/static/T03-1.gif)                                   |
+| 语音识别翻译机器人     | ![D06-4.gif](https://imgbed.ppai.top/file/1772442648403_D06-4.gif)                                 |
 
 ### 4.源码解读
 
 以源码的视角，介绍SpringAI的核心实现，对应的项目工程以 `Yxx-` 开头
-
 
 ### 5.LLM应用开发入门
 
