@@ -42,6 +42,7 @@
         <module>S17-reasoncontent</module>
         <module>S18-dashscop-audio</module>
         <module>S19-audio-transaction</module>
+        <module>S20-manual-tool-execute</module>
     </modules>
 	<scm>
 		<connection/>
