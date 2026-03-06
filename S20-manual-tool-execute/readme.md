@@ -7,8 +7,11 @@
   - 用户输入 -> LLM -> 工具消息 -> 本地执行工具，将工具结果给 -> LLM -> 总结最终输出内容
 - 需要注意的时：工具名不要出现重复的情况，否则会出现报错
 
-- [Spring AI工具调用如何对接真实业务？从自动到手动控制的完整链路剖析](https://mp.weixin.qq.com/s/TbTnpPkVPY_bTts_l8ltGQ)
+ 
+![开发者手动控制工具执行流程](https://imgbed.ppai.top/file/1772772397143_19-03.webp)
 
+
+- [Spring AI工具调用如何对接真实业务？从自动到手动控制的完整链路剖析](https://mp.weixin.qq.com/s/TbTnpPkVPY_bTts_l8ltGQ)
 
 
 **作者**：一灰  
