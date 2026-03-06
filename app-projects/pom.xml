@@ -18,6 +18,8 @@
         <module>D03-text-address-extraction</module>
         <module>D04-invoice-extraction</module>
         <module>D05-rag-qa-bot</module>
+        <module>D06-ai-auto-chat</module>
+        <module>D07-ai-self-protocol-chat</module>
     </modules>
 
     <properties>

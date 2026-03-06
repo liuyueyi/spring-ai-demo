@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 智能聊天</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            width: 100%;
+            height: 100vh;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.ai {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 14px 20px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            line-height: 1.6;
+            font-size: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.ai .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #e8e8e8;
+        }
+
+        /* ========== 卡片样式优化 ========== */
+        .message-content.card {
+            background: white;
+            border-radius: 16px;
+            padding: 0;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-20%, -20%); }
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card-header .subtitle {
+            margin: 10px 0 0 0;
+            font-size: 14px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
+        }
+
+        .card-body {
+            padding: 24px 28px;
+        }
+
+        .card-body p {
+            color: #555;
+            line-height: 1.8;
+            margin: 0;
+            font-size: 15px;
+        }
+
+        .card-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .card-info-item {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .card-info-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .card-info-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .card-info-value {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .card-actions {
+            padding: 16px 28px 20px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+        }
+
+        .card-action-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .card-action-btn:hover::before {
+            left: 100%;
+        }
+
+        .card-action-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .card-action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .card-action-btn.secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .card-action-btn.secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* ========== 列表样式优化 ========== */
+        .message-content.list {
+            background: white;
+            border-radius: 16px;
+            padding: 0;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .list-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 28px;
+            font-size: 18px;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .list-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+        }
+
+        .list-item {
+            padding: 20px 28px;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:hover {
+            background: linear-gradient(90deg, #f8f9fa 0%, #ffffff 100%);
+            transform: translateX(4px);
+        }
+
+        .list-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            transform: scaleY(0);
+            transition: transform 0.3s;
+        }
+
+        .list-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .list-item-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s;
+        }
+
+        .list-item:hover .list-item-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .list-item-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .list-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .list-item h4 {
+            color: #333;
+            margin: 0 0 8px 0;
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .list-item p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .list-item-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* ========== 选项样式优化 ========== */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+            width: 100%;
+        }
+
+        .option-card {
+            background: white;
+            border: 2px solid #e8e8e8;
+            border-radius: 14px;
+            padding: 18px 22px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            transform: scaleY(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+            transform: translateX(8px);
+        }
+
+        .option-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .option-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .option-card.selected::before {
+            transform: scaleY(1);
+        }
+
+        .option-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .option-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            flex-shrink: 0;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s;
+        }
+
+        .option-card:hover .option-icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .option-card.selected .option-icon {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-label {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .option-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* ========== 输入框样式优化 ========== */
+        .chat-input-container {
+            padding: 24px 30px;
+            background: white;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .response-type-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .type-btn {
+            padding: 10px 16px;
+            border: 2px solid #e8e8e8;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #666;
+        }
+
+        .type-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .type-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 24px;
+            border: 2px solid #e8e8e8;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .send-btn {
+            padding: 14px 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ========== 正在输入指示器优化 ========== */
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #f5f5f5;
+            border-radius: 20px;
+        }
+
+        .typing-indicator span {
+            animation: bounce 1.4s infinite ease-in-out both;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: inline-block;
+            height: 10px;
+            width: 10px;
+        }
+
+        .typing-indicator span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0.6);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* ========== 滚动条美化 ========== */
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
+        }
+
+        /* ========== 响应式设计 ========== */
+        @media (max-width: 768px) {
+            .chat-header {
+                padding: 16px 20px;
+                font-size: 20px;
+            }
+
+            .chat-messages {
+                padding: 20px 16px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .message-content.card,
+            .message-content.list {
+                max-width: 100%;
+            }
+
+            .chat-input-container {
+                padding: 16px 20px;
+            }
+
+            .response-type-selector {
+                display: none;
+            }
+
+            .card-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            🤖 AI 智能聊天
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <!-- 消息会动态添加到这里 -->
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="response-type-selector">
+                <button class="type-btn active" data-type="text">文本</button>
+                <button class="type-btn" data-type="card">卡片</button>
+                <button class="type-btn" data-type="list">列表</button>
+                <button class="type-btn" data-type="options">选项</button>
+            </div>
+            <input 
+                type="text" 
+                class="chat-input" 
+                id="chatInput" 
+                placeholder="输入消息..."
+                onkeypress="if(event.keyCode===13) sendMessage()"
+            >
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">发送</button>
+        </div>
+    </div>
+
+    <script>
+        let conversationId = null;
+        let currentResponseType = 'text';
+
+        // 响应类型切换
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentResponseType = this.dataset.type;
+            });
+        });
+
+        // 添加消息到聊天界面
+        function addMessage(content, isUser) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            if (typeof content === 'string') {
+                contentDiv.textContent = content;
+            } else {
+                // 处理结构化数据
+                if (content.type === 'card' && content.data) {
+                    contentDiv.classList.add('card');
+                    contentDiv.innerHTML = `
+                        <div class="card-header">
+                            <h3>${content.data.title || ''}</h3>
+                            ${content.data.subtitle ? `<p class="subtitle">${content.data.subtitle}</p>` : ''}
+                        </div>
+                        <div class="card-body">
+                            <p>${content.data.description || ''}</p>
+                        </div>
+                    `;
+                } else if (content.type === 'list' && Array.isArray(content.data)) {
+                    contentDiv.classList.add('list');
+                    contentDiv.innerHTML = content.data.map(item => `
+                        <div class="list-item">
+                            <div class="list-item-icon">📋</div>
+                            <div class="list-item-content">
+                                <h4>${item.title || ''}</h4>
+                                <p>${item.description || ''}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } else if (content.type === 'options' && Array.isArray(content.data)) {
+                    contentDiv.innerHTML = `
+                        <p style="margin-bottom: 12px; color: #666;">${content.content || '请选择：'}</p>
+                        <div class="options-container">
+                            ${content.data.map((opt, index) => `
+                                <div class="option-card" onclick="selectOption('${opt.value}')">
+                                    <div class="option-icon">${String.fromCharCode(65 + index)}</div>
+                                    <div class="option-content">
+                                        <div class="option-label">${opt.label}</div>
+                                        ${opt.description ? `<div class="option-description">${opt.description}</div>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    contentDiv.textContent = content.content || '';
+                }
+            }
+            
+            messageDiv.appendChild(contentDiv);
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // 显示正在输入指示器
+        function showTypingIndicator() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // 移除正在输入指示器
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // 选择选项
+        function selectOption(value) {
+            document.getElementById('chatInput').value = value;
+            sendMessage();
+        }
+
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // 禁用发送按钮
+            sendBtn.disabled = true;
+            input.value = '';
+            
+            // 添加用户消息
+            addMessage(message, true);
+            
+            // 显示正在输入指示器
+            showTypingIndicator();
+            
+            try {
+                // 使用 EventSource 进行 SSE 流式请求
+                const params = new URLSearchParams({
+                    message: message,
+                    responseType: currentResponseType
+                });
+                if (conversationId) {
+                    params.append('conversationId', conversationId);
+                }
+                
+                const eventSource = new EventSource(`/api/chat/stream?${params.toString()}`);
+                let fullContent = '';
+                let isFirstChunk = true;
+                let aiMessageDiv = null;
+                
+                eventSource.onmessage = function(event) {
+                    console.log('收到 SSE 数据:', event.data);
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('解析成功:', data);
+                        
+                        if (isFirstChunk) {
+                            removeTypingIndicator();
+                            aiMessageDiv = document.createElement('div');
+                            aiMessageDiv.className = 'message ai';
+                            const contentDiv = document.createElement('div');
+                            contentDiv.className = 'message-content';
+                            aiMessageDiv.appendChild(contentDiv);
+                            document.getElementById('chatMessages').appendChild(aiMessageDiv);
+                            isFirstChunk = false;
+                        }
+                        
+                        const contentDiv = aiMessageDiv.querySelector('.message-content');
+                        
+                        if (data.error) {
+                            contentDiv.textContent = `错误：${data.error}`;
+                            eventSource.close();
+                        } else if (data.done) {
+                            // 流式结束
+                            console.log('流式结束', data);
+                            if (conversationId === null) {
+                                conversationId = data.conversationId;
+                            }
+                            eventSource.close();
+                        } else if (data.data) {
+                            // 结构化数据
+                            console.log('结构化数据:', data.data);
+                            renderStructuredData(contentDiv, data);
+                        } else if (data.content) {
+                            // 文本内容累积
+                            fullContent += data.content;
+                            contentDiv.textContent = fullContent;
+                        }
+                        
+                        document.getElementById('chatMessages').scrollTop = 
+                            document.getElementById('chatMessages').scrollHeight;
+                    } catch (e) {
+                        console.error('Parse error:', e);
+                        console.error('Failed data:', event.data);
+                    }
+                };
+                
+                eventSource.onerror = function(error) {
+                    console.error('SSE Error:', error);
+                    removeTypingIndicator();
+                    addMessage(`错误：连接失败`, false);
+                    eventSource.close();
+                };
+                
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage(`错误：${error.message}`, false);
+                console.error('Chat error:', error);
+            } finally {
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        // 渲染结构化数据
+        function renderStructuredData(contentDiv, data) {
+            if (data.type === 'card' && data.data) {
+                contentDiv.classList.add('card');
+                contentDiv.innerHTML = `
+                    <div class="card-header">
+                        <h3>${data.data.title || ''}</h3>
+                        ${data.data.subtitle ? `<p class="subtitle">${data.data.subtitle}</p>` : ''}
+                    </div>
+                    <div class="card-body">
+                        <p>${data.data.description || ''}</p>
+                    </div>
+                `;
+            } else if (data.type === 'list' && Array.isArray(data.data)) {
+                contentDiv.classList.add('list');
+                contentDiv.innerHTML = data.data.map(item => `
+                    <div class="list-item">
+                        <div class="list-item-icon">📋</div>
+                        <div class="list-item-content">
+                            <h4>${item.title || ''}</h4>
+                            <p>${item.description || ''}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else if (data.type === 'options' && Array.isArray(data.data)) {
+                contentDiv.innerHTML = `
+                    <p style="margin-bottom: 12px; color: #666;">${data.content || '请选择：'}</p>
+                    <div class="options-container">
+                        ${data.data.map((opt, index) => `
+                            <div class="option-card" onclick="selectOption('${opt.value}')">
+                                <div class="option-icon">${String.fromCharCode(65 + index)}</div>
+                                <div class="option-content">
+                                    <div class="option-label">${opt.label}</div>
+                                    ${opt.description ? `<div class="option-description">${opt.description}</div>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                console.log('未知结构化数据类型：', data)
+                contentDiv.textContent = data.content || '';
+            }
+        }
+    </script>
+</body>
+</html>

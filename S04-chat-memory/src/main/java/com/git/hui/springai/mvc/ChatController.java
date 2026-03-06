@@ -55,7 +55,7 @@ public class ChatController {
         this.promptClient = ChatClient.builder(chatModel)
                 .defaultSystem("你现在是狂放不羁的诗仙李白，我们现在开始对话")
                 .defaultAdvisors(new SimpleLoggerAdvisor(ModelOptionsUtils::toJsonStringPrettyPrinter, ModelOptionsUtils::toJsonStringPrettyPrinter, 0),
-                        // 每次交互时从记忆库检索历史消息，并将其作为消息集合注入提示词
+                        // 将之前的消息内容以文本的方式追加到系统提示词中
                         PromptChatMemoryAdvisor.builder(chatMemory).build())
                 .build();
     }

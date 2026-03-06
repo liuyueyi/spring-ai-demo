@@ -1,0 +1,32 @@
+spring:
+  ai:
+    openai:
+      # api-key 使用你自己申请的进行替换；如果为了安全考虑，可以通过启动参数进行设置
+      api-key: ${silicon-api-key}
+      transcription:
+        api-key: ${silicon-api-key}
+        base-url: https://api.siliconflow.cn/v1
+        transcription-path: /audio/transcriptions
+        options:
+          model: FunAudioLLM/SenseVoiceSmall
+          response-format: text
+      chat: # 聊天模型
+        options:
+          #          model: deepseek-ai/DeepSeek-R1-0528-Qwen3-8B # 不支持工具调用
+          #          model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+          #          model: THUDM/GLM-Z1-9B-0414
+          #          model: THUDM/GLM-4-9B-0414
+          #          model: THUDM/glm-4-9b-chat # 不支持工具调用
+          model: Qwen/Qwen2.5-7B-Instruct
+#          model: Qwen/Qwen3-8B
+      base-url: https://api.siliconflow.cn
+  thymeleaf:
+    cache: false
+
+server:
+  port: 8080
+
+# 修改日志级别
+logging:
+  level:
+    com.git.hui.springai.app.advisor.MyLoggingAdvisor: debug
