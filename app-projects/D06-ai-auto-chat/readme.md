@@ -4,6 +4,10 @@ author: [一灰灰](https://www.hhui.top/)
 
 本项目实现一个 AI 对话系统，支持流式响应和结构化数据返回
 
+本文对应的教程请参考：
+
+- [告别纯文本聊天：基于Spring AI，打造支持富UI的流式对话系统](https://mp.weixin.qq.com/s/U6ua-dpkVZTYT1n5JXiYDg)
+
 ### 功能特性
 
 1. **流式响应**: 后端通过 SSE (Server-Sent Events) 实时推送 AI 回复内容
