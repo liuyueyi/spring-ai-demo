@@ -16,6 +16,7 @@
         <module>L01-simple-demo</module>
         <module>L02-human-in-loop</module>
         <module>L03-skill-creator</module>
+        <module>L04-handsoff</module>
     </modules>
 
     <properties>
