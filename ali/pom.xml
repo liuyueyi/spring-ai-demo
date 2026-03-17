@@ -17,6 +17,8 @@
         <module>L02-human-in-loop</module>
         <module>L03-skill-creator</module>
         <module>L04-handsoff</module>
+        <module>L05-multi-agent-sequence</module>
+        <module>L06-multi-agent-paralle</module>
     </modules>
 
     <properties>
