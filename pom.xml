@@ -44,6 +44,7 @@
         <module>S19-audio-transaction</module>
         <module>S20-manual-tool-execute</module>
         <module>ali</module>
+        <module>spring-ai-demo-starter</module>
     </modules>
 	<scm>
 		<connection/>
@@ -61,6 +62,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.git.hui.springai.ali</groupId>
+			<artifactId>spring-ai-demo-starter</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

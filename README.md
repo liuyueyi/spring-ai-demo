@@ -18,6 +18,21 @@ v2 对应的目录下，存放的是基于 SpringAI 2.x 的示例工程
 - SpringBoot 4.x
 - SpringAI 2.x
 
+Spring-Ai-alibaba 相关的示例项目，放在 ali/ 目录
+
+- Java17+
+- spring-ai-alibaba-agent-framework: 1.1.2.1
+
+### 本地启动说明
+
+这个仓库中，所有的项目都是独立运行的，彼此之间无相互依赖；因此您可以任意选择一个项目，基于其Application启动类进行启动测试
+
+但是，在启动之前，请根据您实际的模型需要，替换 `resources/application.yml` 中的模型配置
+
+对于密钥，本地开发时，可以通过环境上下文、启动参数、配置文件硬编码等各种方式注入；当然您也可以将项目根目录中的 [.env.example](./.env.example) 拷贝一份名为 `.env` 的文件
+
+然后在这个配置文件中，维护上ApiKey，然后项目在启动时，会自动读取这个配置中的ApiKey，其实现主要是依赖 [spring-ai-demo-starter](./spring-ai-demo-starter) 来提供支持
+
 ## 教程目录
 
 ### 1.基础教程
