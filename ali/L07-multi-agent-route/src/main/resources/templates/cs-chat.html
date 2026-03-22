@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能客服 - 多智能体路由</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            opacity: 0.95;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message.assistant {
+            align-items: flex-start;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+            color: #6b7280;
+        }
+
+        .department-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .department-badge.router {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .department-badge.sales {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .department-badge.hr {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .department-badge.tech {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #1f2937;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .message.typing .message-content {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #9ca3af;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .input-section {
+            padding: 20px 30px;
+            background: white;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #667eea;
+        }
+
+        .input-group button {
+            padding: 15px 40px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        .input-group button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .input-group button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .agent-info {
+            padding: 15px 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .agent-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            font-size: 0.9em;
+        }
+
+        .agent-card.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .agent-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .agent-card:not(.active) .agent-icon {
+            background: #f3f4f6;
+        }
+
+        .agent-card.active .agent-icon {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 滚动条美化 */
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                height: calc(100vh - 20px);
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .agent-info {
+                padding: 10px 15px;
+                gap: 10px;
+            }
+
+            .agent-card {
+                font-size: 0.8em;
+                padding: 6px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>
+                <span>🤖</span>
+                智能客服中心
+            </h1>
+            <div class="status">
+                <div class="status-indicator"></div>
+                <span>在线服务</span>
+            </div>
+        </div>
+
+        <!-- Agent 状态信息 -->
+        <div class="agent-info">
+            <div class="agent-card" id="agent-router">
+                <div class="agent-icon">🎯</div>
+                <span>路由中心</span>
+            </div>
+            <div class="agent-card" id="agent-sales">
+                <div class="agent-icon">💼</div>
+                <span>销售部门</span>
+            </div>
+            <div class="agent-card" id="agent-hr">
+                <div class="agent-icon">👥</div>
+                <span>人力资源</span>
+            </div>
+            <div class="agent-card" id="agent-tech">
+                <div class="agent-icon">🔧</div>
+                <span>技术支持</span>
+            </div>
+        </div>
+
+        <!-- 聊天区域 -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- 欢迎消息 -->
+                <div class="message assistant">
+                    <div class="message-header">
+                        <span class="department-badge router">路由中心</span>
+                    </div>
+                    <div class="message-content">
+                        您好！我是智能客服助手。我可以根据您的问题，自动为您转接到相应的业务部门：<br><br>
+                        💼 <strong>销售部门</strong>：产品销售、优惠活动、购买渠道<br>
+                        👥 <strong>人力资源</strong>：招聘信息、面试安排、入职咨询<br>
+                        🔧 <strong>技术支持</strong>：技术问题、bug 反馈、使用指导<br><br>
+                        请问有什么可以帮您？
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="input-section">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="请输入您的问题..." 
+                    autocomplete="off"
+                    onkeypress="if(event.keyCode===13 && !event.shiftKey){sendMessage();}"
+                >
+                <button id="sendBtn" onclick="sendMessage()">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEventSource = null;
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // 添加消息到聊天界面
+        function addMessage(content, isUser = false, department = 'router') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            
+            const deptNames = {
+                'router': '路由中心',
+                'sales': '销售部门',
+                'hr': '人力资源',
+                'tech': '技术支持',
+                'unknown': '客服中心'
+            };
+
+            if (!isUser) {
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'message-header';
+                headerDiv.innerHTML = `<span class="department-badge ${department}">${deptNames[department] || department}</span>`;
+                messageDiv.appendChild(headerDiv);
+            }
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+            messageDiv.appendChild(contentDiv);
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            return contentDiv;
+        }
+
+        // 显示正在输入动画
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message assistant typing';
+            typingDiv.id = 'typingIndicator';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            
+            typingDiv.appendChild(contentDiv);
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 移除正在输入动画
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // 更新 Agent 状态
+        function updateAgentStatus(department) {
+            // 移除所有激活状态
+            document.querySelectorAll('.agent-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // 激活当前 agent
+            const activeCard = document.getElementById(`agent-${department}`);
+            if (activeCard) {
+                activeCard.classList.add('active');
+            }
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // 禁用输入框和按钮
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+
+            // 添加用户消息
+            addMessage(message, true);
+            messageInput.value = '';
+
+            // 显示正在输入动画
+            showTypingIndicator();
+
+            // 创建 EventSource 连接到 SSE 接口
+            const eventSource = new EventSource(`/api/cs/chat?message=${encodeURIComponent(message)}`);
+            currentEventSource = eventSource;
+
+            let lastContentDiv = null;
+            let fullContent = '';
+
+            eventSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    // 如果有内容，更新或创建消息
+                    if (data.hasContent && data.content) {
+                        removeTypingIndicator();
+                        
+                        // 更新 Agent 状态
+                        updateAgentStatus(data.department);
+                        
+                        if (!lastContentDiv || data.agent !== (lastContentDiv.dataset.agent || '')) {
+                            // 新的 agent 回复，创建新消息
+                            const msgDiv = document.createElement('div');
+                            msgDiv.className = 'message assistant';
+                            
+                            const deptNames = {
+                                'router': '路由中心',
+                                'sales': '销售部门',
+                                'hr': '人力资源',
+                                'tech': '技术支持',
+                                'unknown': '客服中心'
+                            };
+                            
+                            const headerDiv = document.createElement('div');
+                            headerDiv.className = 'message-header';
+                            headerDiv.innerHTML = `<span class="department-badge ${data.department}">${deptNames[data.department] || data.department}</span>`;
+                            msgDiv.appendChild(headerDiv);
+                            
+                            const contentDiv = document.createElement('div');
+                            contentDiv.className = 'message-content';
+                            contentDiv.textContent = data.content;
+                            contentDiv.dataset.agent = data.agent;
+                            
+                            msgDiv.appendChild(contentDiv);
+                            chatMessages.appendChild(msgDiv);
+                            lastContentDiv = contentDiv;
+                            fullContent = data.content;
+                        } else {
+                            // 同一个 agent 的连续内容，追加
+                            fullContent += data.content;
+                            lastContentDiv.textContent = fullContent;
+                        }
+                        
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                } catch (e) {
+                    console.error('解析消息失败:', e);
+                }
+            };
+
+            eventSource.onerror = function(error) {
+                // 检查连接状态，如果是正常关闭（readyState === 2），则不视为错误
+                if (eventSource.readyState === 2) { // EventSource.CLOSED
+                    console.log('SSE 连接已正常关闭');
+                    removeTypingIndicator();
+                    
+                    // 重新启用输入框
+                    messageInput.disabled = false;
+                    sendBtn.disabled = false;
+                    messageInput.focus();
+                    
+                    // 重置 Agent 状态到路由中心
+                    setTimeout(() => {
+                        updateAgentStatus('router');
+                    }, 1000);
+                    return;
+                }
+                
+                // 其他错误情况才记录错误日志
+                console.error('SSE 连接错误:', error);
+                eventSource.close();
+                removeTypingIndicator();
+                
+                // 重新启用输入框
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+                messageInput.focus();
+                
+                // 重置 Agent 状态到路由中心
+                setTimeout(() => {
+                    updateAgentStatus('router');
+                }, 1000);
+            };
+
+            eventSource.addEventListener('error', function(event) {
+                // 只有在有数据且是错误消息时才处理
+                if (event.data && event.data.trim() !== '') {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.error) {
+                            removeTypingIndicator();
+                            addMessage(`❌ 错误：${data.errorMessage}`, false, 'unknown');
+                        }
+                    } catch (e) {
+                        console.error('处理错误消息失败:', e);
+                    }
+                }
+            });
+
+            eventSource.addEventListener('message', function(event) {
+                // 流式消息已在 onmessage 中处理
+            });
+        }
+
+        // 页面加载完成后聚焦输入框
+        window.onload = function() {
+            messageInput.focus();
+        };
+    </script>
+</body>
+</html>
