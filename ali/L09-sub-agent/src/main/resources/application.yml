@@ -1,0 +1,22 @@
+spring:
+  ai:
+    openai:
+      # api-key 使用你自己申请的进行替换；如果为了安全考虑，可以通过启动参数进行设置
+      api-key: ${silicon-api-key}
+      chat: # 聊天模型
+        options:
+          # model: deepseek-ai/DeepSeek-R1-0528-Qwen3-8B # 不支持工具调用
+          # model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+          # model: THUDM/GLM-Z1-9B-0414
+          # model: THUDM/GLM-4-9B-0414
+          # model: THUDM/glm-4-9b-chat # 不支持工具调用
+#          model: Qwen/Qwen2.5-7B-Instruct
+#          model: Qwen/Qwen3.5-4B # 模型默认启用思考模式（Thinking Mode），支持工具调用
+          model: Qwen/Qwen3-8B
+      base-url: https://api.siliconflow.cn
+  thymeleaf:
+    cache: false
+
+server:
+  tomcat:
+    uri-encoding: UTF-8

@@ -1,4 +1,4 @@
-package com.git.hui.springai.ali;
+package com.git.hui.springai;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
@@ -14,7 +14,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 读取 .env 文件，自动注入环境变量
+ * @author YiHui
+ * @date 2026/3/23
+ */
 public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DotenvEnvironmentPostProcessor.class);
 
     private static final String PROPERTY_SOURCE_NAME = "SpringAI-Dotenv";
     private static final String DOTENV_FILE = ".env";
@@ -32,11 +38,13 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor,
         }
 
         if (environment.getPropertySources().contains(PROPERTY_SOURCE_NAME)) {
+            log.info("Replacing existing {} property source with {}", PROPERTY_SOURCE_NAME, DOTENV_FILE);
             environment.getPropertySources().replace(PROPERTY_SOURCE_NAME, new SystemEnvironmentPropertySource(PROPERTY_SOURCE_NAME, properties));
             return;
         }
 
         environment.getPropertySources().addFirst(new SystemEnvironmentPropertySource(PROPERTY_SOURCE_NAME, properties));
+        log.info("Loaded {} entries from {}", properties.size(), DOTENV_FILE);
     }
 
     @Override

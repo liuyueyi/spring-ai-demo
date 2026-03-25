@@ -20,13 +20,15 @@
         <module>L05-multi-agent-sequence</module>
         <module>L06-multi-agent-paralle</module>
         <module>L07-multi-agent-route</module>
+        <module>L08-multi-agent-supervisor</module>
+        <module>L09-sub-agent</module>
     </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ali-version>1.1.2.1</ali-version>
+        <ali-version>1.1.2.2</ali-version>
     </properties>
 
     <dependencies>
