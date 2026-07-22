@@ -140,6 +140,13 @@ SpringAI alibaba 是一个基于 SpringAI 的开源项目，提供了 SpringAI �
 - [05.多智能体实战 | 基于 Spring AI Alibaba 从0到1实现故事创作智能体](https://mp.weixin.qq.com/s/k_3viD7wDe616hhpiWvyrQ)
 - [06.多智能体实战 | 基于 Spring AI Alibaba 实现方案策划多智能体](https://mp.weixin.qq.com/s/iKOAzyAZxm1u5ooxcmCNBA)
 
+### 8. AgentScope
+
+AgentScope Java 2.0 是面向企业级、分布式、生产环境的智能体框架，提供与模型能力相匹配的核心 Harness 抽象，可支持长期、稳定、安全可控的智能体任务执行。
+
+[agent-scope](./agent-scope) 目录下，主要是AgentScope2.0 的使用示例工程，其中示例工程以 `Axx-` 开头
+
+
 ## 关于
 
 这个项目的主要为了JAVA AI应用开发做的一些基础性示例工程，以方便帮助大家快速上手和掌握一些大模型应用开发、Agent开发的基础知识点；

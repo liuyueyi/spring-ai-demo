@@ -45,6 +45,7 @@
         <module>S20-manual-tool-execute</module>
         <module>ali</module>
         <module>spring-ai-demo-starter</module>
+        <module>agent-scope</module>
     </modules>
 	<scm>
 		<connection/>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.git.hui.springai.agentscope</groupId>
+        <artifactId>agent-scope</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>A01-basic-demo</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <agentscope.version>2.0.0</agentscope.version>
+    </properties>
+
+    <dependencies>
+        <!-- HarnessAgent 入口：自动引入 agentscope-core -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-harness</artifactId>
+            <version>${agentscope.version}</version>
+        </dependency>
+
+        <!-- 如果使用 阿里的DashScope 则换 agentscope-extensions-model-dashscope -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-extensions-model-openai</artifactId>
+            <version>${agentscope.version}</version>
+        </dependency>
+    </dependencies>
+</project>

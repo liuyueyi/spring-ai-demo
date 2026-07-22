@@ -37,3 +37,6 @@ build/
 .skills
 docs/blogs
 .env
+
+
+.agentscope
