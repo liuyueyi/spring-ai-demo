@@ -16,6 +16,7 @@
         <module>A01-basic-demo</module>
         <module>A02-react-demo</module>
         <module>A03-simple-chat-agent</module>
+        <module>A04-tool-demo</module>
     </modules>
 
     <properties>
