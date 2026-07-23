@@ -15,6 +15,7 @@
     <modules>
         <module>A01-basic-demo</module>
         <module>A02-react-demo</module>
+        <module>A03-simple-chat-agent</module>
     </modules>
 
     <properties>
@@ -37,6 +38,12 @@
             <groupId>io.agentscope</groupId>
             <artifactId>agentscope-extensions-model-openai</artifactId>
             <version>${agentscope.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.git.hui.springai.ali</groupId>
+            <artifactId>spring-ai-demo-starter</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
