@@ -146,6 +146,7 @@ AgentScope Java 2.0 是面向企业级、分布式、生产环境的智能体框
 
 [agent-scope](./agent-scope) 目录下，主要是AgentScope2.0 的使用示例工程，其中示例工程以 `Axx-` 开头
 
+- [01.AgentScope Java 2.0 简介与环境搭建 | 十分钟上手](https://mp.weixin.qq.com/s/u4wERL0UXChPgvWQJpwurA)
 
 ## 关于
 

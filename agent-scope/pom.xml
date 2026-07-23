@@ -14,12 +14,30 @@
     <packaging>pom</packaging>
     <modules>
         <module>A01-basic-demo</module>
+        <module>A02-react-demo</module>
     </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <agentscope.version>2.0.0</agentscope.version>
     </properties>
+
+    <dependencies>
+        <!-- HarnessAgent 入口：自动引入 agentscope-core -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-harness</artifactId>
+            <version>${agentscope.version}</version>
+        </dependency>
+
+        <!-- 如果使用 阿里的DashScope 则换 agentscope-extensions-model-dashscope -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-extensions-model-openai</artifactId>
+            <version>${agentscope.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

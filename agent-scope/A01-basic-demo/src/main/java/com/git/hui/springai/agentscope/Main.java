@@ -31,7 +31,7 @@ public class Main {
                                 .stream(true)
                                 .formatter(new OpenAIChatFormatter())
                                 .build()
-                )                       // 模型，自动读取 DASHSCOPE_API_KEY
+                )
                 .workspace(Paths.get(".agentscope/workspace"))      // 工作区路径
                 .build();
 
