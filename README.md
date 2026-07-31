@@ -151,6 +151,7 @@ AgentScope Java 2.0 是面向企业级、分布式、生产环境的智能体框
 - [03.你的第一个 Java Agent：Builder 模式、流式输出与思考模式完全指南](https://mp.weixin.qq.com/s/l1HmsYK2w11U0hk-tadpLg)：Builder 模式全面解析 + 流式输出 + 思考模式
 - [04.AgentScope Java 2.0 工具系统实战：@Tool 与 @ToolParam 注解全解](https://mp.weixin.qq.com/s/3PPy1gB5gxhZSBSxWQ6rng)：用 `@Tool` 注解将 Java 方法注册为 Agent 工具
 - [05.AgentScope Java 2.0 结构化输出实战：让 Agent 直接返回 Java 对象](https://mp.weixin.qq.com/s/92WrOmKjypAi4upDcTXy3g) —— 让 Agent 直接返回 Java 对象
+- [06.AgentScope2.0 HarnessAgent：为 ReActAgent 装上操作系统——从 CPU 到操作系统，Harness 的四大子系统深度解析](https://mp.weixin.qq.com/s/PQJD5cGydyOhgYHD88LJfA)
 
 
 ## 关于
