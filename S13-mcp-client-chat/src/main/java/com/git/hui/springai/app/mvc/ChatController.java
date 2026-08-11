@@ -62,7 +62,8 @@ public class ChatController {
     @GetMapping("/directCallMcp")
     @ResponseBody
     public Object directCallMcp(String area) {
-        var tools = mcpClients.get(0).listTools().block().tools();
+        //有2个mcpclient。需要将0 修改为1
+        var tools = mcpClients.get(1).listTools().block().tools();
         System.out.println("当前mcp的工具: " + tools);
 
 
